@@ -1,0 +1,62 @@
+import enum
+import uuid
+from datetime import datetime
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+
+from ..db.base import Base
+
+
+class MessageSender(str, enum.Enum):
+    USER = "user"
+    AI = "ai"
+
+
+class Conversation(Base):
+    __tablename__ = "conversations"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    topic = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
+    # Relationships
+    user = relationship("User", back_populates="conversations")
+    messages = relationship(
+        "Message", back_populates="conversation", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self):
+        return (
+            f"<Conversation(id={self.id}, user_id={self.user_id}, topic={self.topic})>"
+        )
+
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    conversation_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("conversations.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    sender = Column(Enum(MessageSender), nullable=False)
+    text_content = Column(Text, nullable=False)
+    image_url = Column(Text, nullable=True)
+    video_url = Column(Text, nullable=True)
+    video_timestamp_seconds = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    conversation = relationship("Conversation", back_populates="messages")
+
+    def __repr__(self):
+        return f"<Message(id={self.id}, sender={self.sender}, conversation_id={self.conversation_id})>"

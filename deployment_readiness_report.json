@@ -1,0 +1,91 @@
+{
+  "timestamp": "2025-08-07T17:18:25.542305",
+  "summary": {
+    "total_tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "pass_rate": 100.0
+  },
+  "results": [
+    {
+      "test": "Backend Health Check",
+      "passed": true,
+      "message": "Backend API responded with status 200",
+      "expected": "200 with healthy status",
+      "actual": "200 with {\"status\":\"healthy\",\"service\":\"KS AI API\"}",
+      "timestamp": "2025-08-07T17:18:25.439548"
+    },
+    {
+      "test": "Frontend Accessibility",
+      "passed": true,
+      "message": "Frontend responded with status 200",
+      "expected": "200",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:18:25.490901"
+    },
+    {
+      "test": "API Endpoint GET /health",
+      "passed": true,
+      "message": "Returned 200 with data: {\"status\":\"healthy\",\"service\":\"KS AI API\"}...",
+      "expected": "200",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:18:25.492742"
+    },
+    {
+      "test": "API Endpoint GET /topics/",
+      "passed": true,
+      "message": "Returned 200 with data: [\"Politics\",\"Environmentalism\",\"SKCRF\",\"Educational Trust\"]...",
+      "expected": "200",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:18:25.503561"
+    },
+    {
+      "test": "API Endpoint GET /topics/categories",
+      "passed": true,
+      "message": "Returned 200 with data: [\"Politics\",\"Environmentalism\",\"SKCRF\",\"Educational Trust\"]...",
+      "expected": "200",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:18:25.530787"
+    },
+    {
+      "test": "CORS Configuration",
+      "passed": true,
+      "message": "OPTIONS request returned 200 with CORS headers: {'date': 'Thu, 07 Aug 2025 12:18:25 GMT', 'server': 'uvicorn', 'vary': 'Origin', 'access-control-allow-methods': 'DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT', 'access-control-max-age': '600', 'access-control-allow-credentials': 'true', 'access-control-allow-origin': 'http://localhost:3000', 'access-control-allow-headers': 'Content-Type', 'content-length': '2', 'content-type': 'text/plain; charset=utf-8'}",
+      "expected": "CORS headers present",
+      "actual": "Status: 200, Headers: {'date': 'Thu, 07 Aug 2025 12:18:25 GMT', 'server': 'uvicorn', 'vary': 'Origin', 'access-control-allow-methods': 'DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT', 'access-control-max-age': '600', 'access-control-allow-credentials': 'true', 'access-control-allow-origin': 'http://localhost:3000', 'access-control-allow-headers': 'Content-Type', 'content-length': '2', 'content-type': 'text/plain; charset=utf-8'}",
+      "timestamp": "2025-08-07T17:18:25.532734"
+    },
+    {
+      "test": "Error Handling (404)",
+      "passed": true,
+      "message": "Non-existent endpoint returned 404",
+      "expected": "404",
+      "actual": "404",
+      "timestamp": "2025-08-07T17:18:25.534393"
+    },
+    {
+      "test": "Data Validation",
+      "passed": true,
+      "message": "Invalid data validation returned 422",
+      "expected": "422 or 500",
+      "actual": "422",
+      "timestamp": "2025-08-07T17:18:25.539539"
+    },
+    {
+      "test": "Response Format Consistency",
+      "passed": true,
+      "message": "Topics endpoint returned valid JSON list: ['Politics', 'Environmentalism', 'SKCRF', 'Educational Trust']",
+      "expected": "Valid JSON array with data",
+      "actual": "<class 'list'>",
+      "timestamp": "2025-08-07T17:18:25.541127"
+    },
+    {
+      "test": "Basic Performance",
+      "passed": true,
+      "message": "Health endpoint responded in 1.12ms",
+      "expected": "< 1000ms",
+      "actual": "1.12ms",
+      "timestamp": "2025-08-07T17:18:25.542274"
+    }
+  ]
+}

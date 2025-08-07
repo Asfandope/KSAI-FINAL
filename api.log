@@ -1,0 +1,805 @@
+INFO:     Will watch for changes in these directories: ['/Users/asfandope/ks-ai-final/ks-ai-platform/apps/api']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [44228] using WatchFiles
+INFO:     Started server process [44301]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:58005 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58049 - "GET /topics/categories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 419, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 299, in app
+    raise e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 294, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/app/routers/content.py", line 24, in get_categories
+    categories = db.query(Content.category).distinct().all()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2693, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2180, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2047, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 2, in _connection_for_bind
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1143, in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3269, in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 147, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2431, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+WARNING:  WatchFiles detected changes in 'app/routers/content.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [44301]
+INFO:     Started server process [46257]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:58667 - "GET /topics/categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58708 - "POST /auth/register HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 419, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 299, in app
+    raise e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 294, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/app/routers/auth.py", line 62, in register
+    .first()
+     ^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2180, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2047, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 2, in _connection_for_bind
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1143, in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3269, in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 147, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2431, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     127.0.0.1:59308 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59318 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59320 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59322 - "GET /topics/categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59325 - "OPTIONS /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59327 - "GET /nonexistent HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59329 - "POST /auth/register HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:59331 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59333 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59874 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59877 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59879 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59881 - "GET /topics/categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59884 - "OPTIONS /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59886 - "GET /nonexistent HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59888 - "POST /auth/register HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:59890 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59892 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60305 - "POST /auth/login HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 419, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 299, in app
+    raise e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 294, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/app/routers/auth.py", line 95, in login
+    user = authenticate_user(db, request.username, request.password)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/app/services/auth.py", line 52, in authenticate_user
+    .first()
+     ^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2180, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2047, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 2, in _connection_for_bind
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1143, in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3269, in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 147, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2431, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     127.0.0.1:60308 - "POST /chat/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:60310 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60726 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60731 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60733 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60735 - "GET /topics/categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60738 - "OPTIONS /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60880 - "GET /health HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'app/routers/content.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46257]
+INFO:     Started server process [53384]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:61374 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61378 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61380 - "GET /topics/categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61384 - "OPTIONS /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61389 - "GET /nonexistent-endpoint HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61392 - "POST /auth/register HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:61394 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61396 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61399 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61401 - "POST /auth/login HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:61403 - "POST /auth/register HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:61406 - "GET /admin/dashboard HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:61408 - "GET /admin/content HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:61410 - "POST /chat/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:61412 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61415 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61418 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61420 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61422 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62039 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62043 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62045 - "GET /topics/categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62048 - "OPTIONS /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62050 - "GET /nonexistent-endpoint HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62052 - "POST /auth/register HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62054 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62056 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62059 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62061 - "POST /auth/login HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62063 - "POST /auth/register HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62066 - "GET /admin/dashboard HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:62068 - "GET /admin/content HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:62070 - "POST /chat/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:62072 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62075 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62078 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62080 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62082 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62242 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62246 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62248 - "GET /topics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62250 - "GET /topics/categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62253 - "OPTIONS /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62308 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63519 - "POST /auth/login HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 419, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/starlette/routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 299, in app
+    raise e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 294, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/app/routers/auth.py", line 95, in login
+    user = authenticate_user(db, request.username, request.password)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/app/services/auth.py", line 52, in authenticate_user
+    .first()
+     ^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2180, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2047, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 2, in _connection_for_bind
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1143, in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3269, in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 147, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2431, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 452, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1269, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 169, in _do_get
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 167, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 393, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 678, in __init__
+    self.__connect()
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 902, in __connect
+    with util.safe_reraise():
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 898, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 645, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 616, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asfandope/.pyenv/versions/3.11.5/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53384]
+INFO:     Stopping reloader process [44228]

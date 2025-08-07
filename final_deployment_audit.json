@@ -1,0 +1,196 @@
+{
+  "timestamp": "2025-08-07T17:25:29.621170",
+  "summary": {
+    "total_tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "critical_issues": 0,
+    "warnings": 0,
+    "pass_rate": 100.0,
+    "deployment_ready": true
+  },
+  "critical_issues": [],
+  "warnings": [],
+  "all_results": [
+    {
+      "category": "Infrastructure",
+      "test": "Backend API Health",
+      "passed": true,
+      "critical": true,
+      "message": "API health endpoint returned: {\"status\":\"healthy\",\"service\":\"KS AI API\"}",
+      "expected": "200 with healthy status",
+      "actual": "200 with {\"status\":\"healthy\",\"service\":\"KS AI API\"}",
+      "timestamp": "2025-08-07T17:25:17.216168"
+    },
+    {
+      "category": "Infrastructure",
+      "test": "Frontend Accessibility",
+      "passed": true,
+      "critical": true,
+      "message": "Frontend UI is accessible at http://localhost:3000",
+      "expected": "200",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:25:17.263273"
+    },
+    {
+      "category": "Infrastructure",
+      "test": "Vector Database (Qdrant)",
+      "passed": true,
+      "critical": false,
+      "message": "Qdrant is running with 2 collections: ['pdf_chunks', 'content_embeddings']",
+      "expected": "Qdrant accessible",
+      "actual": "200 with 2 collections",
+      "timestamp": "2025-08-07T17:25:17.268207"
+    },
+    {
+      "category": "API",
+      "test": "Health Check",
+      "passed": true,
+      "critical": true,
+      "message": "Endpoint /health returned: {\"status\":\"healthy\",\"service\":\"KS AI API\"}...",
+      "expected": "200 with valid data",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:25:17.271166"
+    },
+    {
+      "category": "API",
+      "test": "Topic List",
+      "passed": true,
+      "critical": true,
+      "message": "Endpoint /topics/ returned: [\"Politics\",\"Environmentalism\",\"SKCRF\",\"Educational Trust\"]...",
+      "expected": "200 with valid data",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:25:17.275862"
+    },
+    {
+      "category": "API",
+      "test": "Category List",
+      "passed": true,
+      "critical": true,
+      "message": "Endpoint /topics/categories returned: [\"Politics\",\"Environmentalism\",\"SKCRF\",\"Educational Trust\"]...",
+      "expected": "200 with valid data",
+      "actual": "200",
+      "timestamp": "2025-08-07T17:25:17.319274"
+    },
+    {
+      "category": "API",
+      "test": "CORS Configuration",
+      "passed": true,
+      "critical": false,
+      "message": "CORS headers present: http://localhost:3000",
+      "expected": "CORS properly configured",
+      "actual": "Status 200",
+      "timestamp": "2025-08-07T17:25:17.321598"
+    },
+    {
+      "category": "Frontend",
+      "test": "Production Build",
+      "passed": true,
+      "critical": true,
+      "message": "Frontend builds successfully for production",
+      "expected": "Build succeeds",
+      "actual": "Exit code: 0",
+      "timestamp": "2025-08-07T17:25:27.039619"
+    },
+    {
+      "category": "Code Quality",
+      "test": "Frontend Linting",
+      "passed": true,
+      "critical": false,
+      "message": "ESLint passes without errors",
+      "expected": "No lint errors",
+      "actual": "Exit code: 0",
+      "timestamp": "2025-08-07T17:25:29.148511"
+    },
+    {
+      "category": "Code Quality",
+      "test": "Backend Linting (Python)",
+      "passed": true,
+      "critical": false,
+      "message": "Python code passes flake8 checks",
+      "expected": "No lint errors",
+      "actual": "Exit code: 0",
+      "timestamp": "2025-08-07T17:25:29.584316"
+    },
+    {
+      "category": "Configuration",
+      "test": "package.json File",
+      "passed": true,
+      "critical": false,
+      "message": "Configuration file exists: /Users/asfandope/ks-ai-final/ks-ai-platform/apps/web/package.json",
+      "expected": "File exists",
+      "actual": "File exists",
+      "timestamp": "2025-08-07T17:25:29.584429"
+    },
+    {
+      "category": "Configuration",
+      "test": "Next Config File",
+      "passed": true,
+      "critical": false,
+      "message": "Configuration file exists: /Users/asfandope/ks-ai-final/ks-ai-platform/apps/web/next.config.js",
+      "expected": "File exists",
+      "actual": "File exists",
+      "timestamp": "2025-08-07T17:25:29.584442"
+    },
+    {
+      "category": "Configuration",
+      "test": "Requirements File",
+      "passed": true,
+      "critical": false,
+      "message": "Configuration file exists: /Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/requirements.txt",
+      "expected": "File exists",
+      "actual": "File exists",
+      "timestamp": "2025-08-07T17:25:29.584451"
+    },
+    {
+      "category": "Configuration",
+      "test": "Compose Config File",
+      "passed": true,
+      "critical": false,
+      "message": "Configuration file exists: /Users/asfandope/ks-ai-final/ks-ai-platform/docker-compose.yml",
+      "expected": "File exists",
+      "actual": "File exists",
+      "timestamp": "2025-08-07T17:25:29.584459"
+    },
+    {
+      "category": "Configuration",
+      "test": "Init Script File",
+      "passed": true,
+      "critical": false,
+      "message": "Configuration file exists: /Users/asfandope/ks-ai-final/ks-ai-platform/scripts/init.sql",
+      "expected": "File exists",
+      "actual": "File exists",
+      "timestamp": "2025-08-07T17:25:29.584468"
+    },
+    {
+      "category": "Configuration",
+      "test": "Backend Environment Config",
+      "passed": true,
+      "critical": false,
+      "message": "Environment file configured: /Users/asfandope/ks-ai-final/ks-ai-platform/apps/api/.env",
+      "expected": "Environment configured",
+      "actual": "Present",
+      "timestamp": "2025-08-07T17:25:29.584476"
+    },
+    {
+      "category": "Performance",
+      "test": "API Response Time",
+      "passed": true,
+      "critical": false,
+      "message": "Health endpoint responds in 6.20ms",
+      "expected": "< 1000ms",
+      "actual": "6.20ms",
+      "timestamp": "2025-08-07T17:25:29.590710"
+    },
+    {
+      "category": "Performance",
+      "test": "Frontend Load Time",
+      "passed": true,
+      "critical": false,
+      "message": "Frontend loads in 30.38ms",
+      "expected": "< 3000ms",
+      "actual": "30.38ms",
+      "timestamp": "2025-08-07T17:25:29.621107"
+    }
+  ]
+}
