@@ -228,10 +228,10 @@ class EmbeddingService:
                         "text": chunk["text"],
                         "metadata": {
                             **metadata,
-                            "chunk_id": chunk["chunk_id"],
-                            "token_count": chunk["token_count"],
-                            "start_token": chunk["start_token"],
-                            "end_token": chunk["end_token"],
+                            "chunk_id": chunk.get("chunk_id", i),  # Use index as fallback
+                            "token_count": chunk.get("token_count", 0),
+                            "start_token": chunk.get("start_token", 0),
+                            "end_token": chunk.get("end_token", 0),
                         },
                     }
                 )

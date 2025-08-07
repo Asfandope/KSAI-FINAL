@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/lib/state/useAuthStore";
 import { Button, Input } from "@ks-ai/ui";
-import { Upload, FileText, Youtube, Users, MessageCircle, Activity } from "lucide-react";
+import { Upload, FileText, Youtube, Users, MessageCircle, Activity, Database, Settings, Search } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -34,6 +34,12 @@ export default function AdminPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // New admin pages state
+  const [users, setUsers] = useState<any[]>([]);
+  const [vectorCollections, setVectorCollections] = useState<any[]>([]);
+  const [systemSettings, setSystemSettings] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
@@ -72,12 +78,57 @@ export default function AdminPage() {
     }
   }, [token]);
 
+  const loadUsers = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE}/admin/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error("Failed to load users:", error);
+    }
+  }, [token]);
+
+  const loadVectorCollections = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE}/admin/vector-db/collections`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setVectorCollections(data);
+      }
+    } catch (error) {
+      console.error("Failed to load vector collections:", error);
+    }
+  }, [token]);
+
+  const loadSettings = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE}/admin/settings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSystemSettings(data);
+      }
+    } catch (error) {
+      console.error("Failed to load settings:", error);
+    }
+  }, [token]);
+
   useEffect(() => {
     if (user?.role === "admin" && token) {
       loadDashboardData();
       loadContent();
+      loadUsers();
+      loadVectorCollections();
+      loadSettings();
     }
-  }, [user, token, loadDashboardData, loadContent]);
+  }, [user, token, loadDashboardData, loadContent, loadUsers, loadVectorCollections, loadSettings]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,6 +223,34 @@ export default function AdminPage() {
           >
             <FileText className="w-4 h-4 mr-2" />
             Manage Content
+          </Button>
+          <Button
+            variant={activeTab === "knowledge-base" ? "primary" : "outline"}
+            onClick={() => setActiveTab("knowledge-base")}
+          >
+            <Search className="w-4 h-4 mr-2" />
+            Knowledge Base
+          </Button>
+          <Button
+            variant={activeTab === "vector-db" ? "primary" : "outline"}
+            onClick={() => setActiveTab("vector-db")}
+          >
+            <Database className="w-4 h-4 mr-2" />
+            Vector DB
+          </Button>
+          <Button
+            variant={activeTab === "users" ? "primary" : "outline"}
+            onClick={() => setActiveTab("users")}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Users
+          </Button>
+          <Button
+            variant={activeTab === "settings" ? "primary" : "outline"}
+            onClick={() => setActiveTab("settings")}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
           </Button>
         </div>
 
@@ -378,6 +457,368 @@ export default function AdminPage() {
                   No content uploaded yet. Start by uploading some PDFs or YouTube videos.
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Knowledge Base Management Tab */}
+        {activeTab === "knowledge-base" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Knowledge Base Management</h2>
+            </div>
+            
+            {/* Search Interface */}
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <Input
+                  placeholder="Search knowledge base..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={() => console.log("Search:", searchQuery)}>
+                  <Search className="w-4 h-4 mr-2" />
+                  Search
+                </Button>
+              </div>
+              
+              {/* Content Organization */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Politics</h3>
+                  <div className="text-2xl font-bold">{content.filter(c => c.category === "Politics").length}</div>
+                  <p className="text-sm text-muted-foreground">Documents</p>
+                </div>
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Environmentalism</h3>
+                  <div className="text-2xl font-bold">{content.filter(c => c.category === "Environmentalism").length}</div>
+                  <p className="text-sm text-muted-foreground">Documents</p>
+                </div>
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">SKCRF</h3>
+                  <div className="text-2xl font-bold">{content.filter(c => c.category === "SKCRF").length}</div>
+                  <p className="text-sm text-muted-foreground">Documents</p>
+                </div>
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Educational Trust</h3>
+                  <div className="text-2xl font-bold">{content.filter(c => c.category === "Educational Trust").length}</div>
+                  <p className="text-sm text-muted-foreground">Documents</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Vector Database Management Tab */}
+        {activeTab === "vector-db" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Vector Database Management</h2>
+              <Button onClick={loadVectorCollections} variant="outline" size="sm">
+                Refresh Collections
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {vectorCollections.map((collection) => (
+                <div key={collection.name} className="border rounded-lg p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-semibold">{collection.topic}</h3>
+                      <p className="text-sm text-muted-foreground">{collection.name}</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded text-xs font-medium ${
+                      collection.status === "active" 
+                        ? "bg-green-100 text-green-800" 
+                        : collection.status === "error"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}>
+                      {collection.status}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Total Vectors:</span>
+                      <span className="font-medium">{collection.vectors_count}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Indexed:</span>
+                      <span className="font-medium">{collection.indexed_vectors_count}</span>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      fetch(`${API_BASE}/admin/vector-db/reindex`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ collection_name: collection.name }),
+                      });
+                    }}
+                  >
+                    <Database className="w-4 h-4 mr-2" />
+                    Reindex Collection
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* User Management Tab */}
+        {activeTab === "users" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">User Management</h2>
+              <Button onClick={loadUsers} variant="outline" size="sm">
+                Refresh Users
+              </Button>
+            </div>
+            
+            <div className="border rounded-lg">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-4">Email</th>
+                      <th className="text-left p-4">Phone</th>
+                      <th className="text-left p-4">Role</th>
+                      <th className="text-left p-4">Conversations</th>
+                      <th className="text-left p-4">Joined</th>
+                      <th className="text-left p-4">Status</th>
+                      <th className="text-left p-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user.id} className="border-b">
+                        <td className="p-4 font-medium">{user.email}</td>
+                        <td className="p-4 text-muted-foreground">{user.phone_number || "—"}</td>
+                        <td className="p-4">
+                          <div className={`px-2 py-1 rounded text-xs font-medium ${
+                            user.role === "admin" 
+                              ? "bg-purple-100 text-purple-800" 
+                              : "bg-blue-100 text-blue-800"
+                          }`}>
+                            {user.role}
+                          </div>
+                        </td>
+                        <td className="p-4">{user.conversation_count}</td>
+                        <td className="p-4 text-muted-foreground">
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="p-4">
+                          <div className={`px-2 py-1 rounded text-xs font-medium ${
+                            user.is_active 
+                              ? "bg-green-100 text-green-800" 
+                              : "bg-gray-100 text-gray-800"
+                          }`}>
+                            {user.is_active ? "Active" : "Inactive"}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          {user.role !== "admin" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                fetch(`${API_BASE}/admin/users/${user.id}/role`, {
+                                  method: "PUT",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: `Bearer ${token}`,
+                                  },
+                                  body: JSON.stringify({ role: user.role === "admin" ? "user" : "admin" }),
+                                }).then(() => loadUsers());
+                              }}
+                            >
+                              Make {user.role === "admin" ? "User" : "Admin"}
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {users.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No users found.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Settings Management Tab */}
+        {activeTab === "settings" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">System Settings</h2>
+              <Button onClick={loadSettings} variant="outline" size="sm">
+                Refresh Settings
+              </Button>
+            </div>
+            
+            {systemSettings && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* AI Settings */}
+                <div className="border rounded-lg p-6">
+                  <h3 className="font-semibold mb-4">AI Configuration</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">OpenAI Model</label>
+                      <Input 
+                        value={systemSettings.ai_settings?.openai_model || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Max Tokens</label>
+                      <Input 
+                        type="number"
+                        value={systemSettings.ai_settings?.max_tokens || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Temperature</label>
+                      <Input 
+                        type="number"
+                        step="0.1"
+                        value={systemSettings.ai_settings?.temperature || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content Settings */}
+                <div className="border rounded-lg p-6">
+                  <h3 className="font-semibold mb-4">Content Settings</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Supported Languages</label>
+                      <Input 
+                        value={systemSettings.content_settings?.supported_languages?.join(", ") || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Max File Size (MB)</label>
+                      <Input 
+                        type="number"
+                        value={systemSettings.content_settings?.max_file_size_mb || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Allowed File Types</label>
+                      <Input 
+                        value={systemSettings.content_settings?.allowed_file_types?.join(", ") || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Auth Settings */}
+                <div className="border rounded-lg p-6">
+                  <h3 className="font-semibold mb-4">Authentication Settings</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">JWT Expiration (Hours)</label>
+                      <Input 
+                        type="number"
+                        value={systemSettings.auth_settings?.jwt_expiration_hours || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        checked={systemSettings.auth_settings?.allow_registration || false}
+                        disabled
+                        className="rounded"
+                      />
+                      <label className="text-sm font-medium">Allow User Registration</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        checked={systemSettings.auth_settings?.require_email_verification || false}
+                        disabled
+                        className="rounded"
+                      />
+                      <label className="text-sm font-medium">Require Email Verification</label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* System Settings */}
+                <div className="border rounded-lg p-6">
+                  <h3 className="font-semibold mb-4">System Configuration</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Environment</label>
+                      <Input 
+                        value={systemSettings.system_settings?.environment || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Log Level</label>
+                      <Input 
+                        value={systemSettings.system_settings?.log_level || ""} 
+                        disabled
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        checked={systemSettings.system_settings?.debug_mode || false}
+                        disabled
+                        className="rounded"
+                      />
+                      <label className="text-sm font-medium">Debug Mode</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Settings are Read-Only in MVP
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>
+                      System settings are currently read-only for security. Contact your system administrator to modify configuration values.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -1,19 +1,19 @@
 {
-  "timestamp": "2025-08-07T17:38:56.280291",
+  "timestamp": "2025-08-07T18:25:24.118140",
   "summary": {
     "total_tests": 7,
-    "passed": 5,
-    "failed": 2,
-    "pass_rate": 71.42857142857143
+    "passed": 6,
+    "failed": 1,
+    "pass_rate": 85.71428571428571
   },
   "results": [
     {
       "test": "Qdrant Vector Database Connectivity",
       "passed": true,
-      "message": "Connected successfully. Found 2 collections: ['pdf_chunks', 'content_embeddings']",
+      "message": "Connected successfully. Found 2 collections: ['content_embeddings', 'pdf_chunks']",
       "expected": "200 with collections response",
       "actual": "200 with 2 collections",
-      "timestamp": "2025-08-07T17:38:56.205763"
+      "timestamp": "2025-08-07T18:25:22.653638"
     },
     {
       "test": "Admin Authentication",
@@ -21,7 +21,7 @@
       "message": "Login successful, token received: eyJhbGciOiJIUzI1NiIs...",
       "expected": "200 with access_token",
       "actual": "200 with token: True",
-      "timestamp": "2025-08-07T17:38:56.226928"
+      "timestamp": "2025-08-07T18:25:22.909754"
     },
     {
       "test": "Chat Endpoint Structure",
@@ -29,15 +29,15 @@
       "message": "Chat endpoint responded with 403 (expected auth/validation error)",
       "expected": "401/422/500 (structure working)",
       "actual": "403",
-      "timestamp": "2025-08-07T17:38:56.230158"
+      "timestamp": "2025-08-07T18:25:22.914592"
     },
     {
       "test": "Authenticated Chat",
-      "passed": false,
-      "message": "Chat failed with 500: {\"detail\":\"Internal server error\"}",
+      "passed": true,
+      "message": "Chat response received: {'id': '3a740dee-cc5c-44d7-b34a-7f766f163bcf', 'sender': 'ai', 'text_content': \"I apologize, but I'm...",
       "expected": "200 with chat response",
-      "actual": "500",
-      "timestamp": "2025-08-07T17:38:56.259732"
+      "actual": "200 with data keys: ['id', 'sender', 'text_content', 'image_url', 'video_url', 'video_timestamp', 'created_at']",
+      "timestamp": "2025-08-07T18:25:24.030338"
     },
     {
       "test": "Admin Dashboard",
@@ -45,7 +45,7 @@
       "message": "Dashboard returned 500 (fallback expected due to DB config)",
       "expected": "200 or 500 (with fallback)",
       "actual": "500",
-      "timestamp": "2025-08-07T17:38:56.271168"
+      "timestamp": "2025-08-07T18:25:24.073817"
     },
     {
       "test": "Content Management",
@@ -53,7 +53,7 @@
       "message": "Content endpoint returned 500",
       "expected": "200 or 500 (with fallback)",
       "actual": "500",
-      "timestamp": "2025-08-07T17:38:56.278200"
+      "timestamp": "2025-08-07T18:25:24.113963"
     },
     {
       "test": "Bilingual Support",
@@ -61,7 +61,7 @@
       "message": "Topics available for bilingual selection: ['Politics', 'Environmentalism', 'SKCRF', 'Educational Trust']",
       "expected": "4+ topics available",
       "actual": "4 topics: ['Politics', 'Environmentalism', 'SKCRF', 'Educational Trust']",
-      "timestamp": "2025-08-07T17:38:56.280254"
+      "timestamp": "2025-08-07T18:25:24.118053"
     }
   ]
 }

@@ -42,6 +42,16 @@ app.include_router(content.router, prefix="/topics", tags=["Content"])
 # Global exception handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    
+    # In development, provide more detailed error info
+    if settings.DEBUG:
+        return JSONResponse(
+            status_code=500, 
+            content={"detail": f"Internal server error: {str(exc)}"}
+        )
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 

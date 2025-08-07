@@ -89,7 +89,7 @@ async def get_current_user(
                 self.id = "admin-fallback"
                 self.email = "admin@ksai.com"
                 self.phone_number = None
-                self.role = UserRole.ADMIN
+                self.role = UserRole.admin
                 self.created_at = datetime.utcnow()
         return MockUser()
     
@@ -107,7 +107,7 @@ async def get_current_user(
                     self.id = "admin-fallback"
                     self.email = "admin@ksai.com"
                     self.phone_number = None
-                    self.role = UserRole.ADMIN
+                    self.role = UserRole.admin
                     self.created_at = datetime.utcnow()
             return MockUser()
         raise credentials_exception

@@ -155,7 +155,7 @@ export function ChatInterface() {
         ) : (
           <>
             {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
+              <ChatMessage key={message.id} message={message} language={language} />
             ))}
             {isLoading && (
               <div className="flex items-center space-x-2 text-muted-foreground">

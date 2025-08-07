@@ -65,8 +65,8 @@ export interface LoginRequest {
 }
 
 export interface TokenResponse {
-  accessToken: string;
-  tokenType: string;
+  access_token: string;
+  token_type: string;
 }
 
 export interface ChatRequest {

@@ -61,7 +61,7 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
           password: formData.password,
         });
 
-        login(user, tokenResponse.accessToken);
+        login(user, tokenResponse.access_token);
         router.push("/");
       } else {
         // Login
@@ -78,9 +78,9 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
         });
 
         // Get user info
-        const user = await authAPI.getCurrentUser(tokenResponse.accessToken);
+        const user = await authAPI.getCurrentUser(tokenResponse.access_token);
         
-        login(user, tokenResponse.accessToken);
+        login(user, tokenResponse.access_token);
         router.push("/");
       }
     } catch (err) {

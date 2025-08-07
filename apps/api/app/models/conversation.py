@@ -3,15 +3,15 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ENUM, UUID
 from sqlalchemy.orm import relationship
 
 from ..db.base import Base
 
 
 class MessageSender(str, enum.Enum):
-    USER = "user"
-    AI = "ai"
+    user = "user"
+    ai = "ai"
 
 
 class Conversation(Base):
@@ -48,7 +48,7 @@ class Message(Base):
         ForeignKey("conversations.id", ondelete="CASCADE"),
         nullable=False,
     )
-    sender = Column(Enum(MessageSender), nullable=False)
+    sender = Column(ENUM(MessageSender, name="message_sender", create_type=False), nullable=False)
     text_content = Column(Text, nullable=False)
     image_url = Column(Text, nullable=True)
     video_url = Column(Text, nullable=True)

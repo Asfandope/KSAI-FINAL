@@ -73,7 +73,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
         email=request.email,
         phone_number=request.phone_number,
         password_hash=hashed_password,
-        role=UserRole.USER,
+                    role=UserRole.user,
     )
 
     db.add(new_user)

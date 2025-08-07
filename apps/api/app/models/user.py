@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Enum, String
+from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -10,8 +11,8 @@ from ..db.base import Base
 
 
 class UserRole(str, enum.Enum):
-    USER = "user"
-    ADMIN = "admin"
+    user = "user"
+    admin = "admin"
 
 
 class User(Base):
@@ -21,7 +22,7 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=True)
     phone_number = Column(String(50), unique=True, nullable=True)
     password_hash = Column(String(255), nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
+    role = Column(ENUM(UserRole, name="user_role", create_type=False), default=UserRole.user, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False

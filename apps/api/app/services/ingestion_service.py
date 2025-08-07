@@ -51,7 +51,7 @@ class IngestionService:
             logger.info(f"Processing content: {content.title} ({content.source_type})")
 
             # Update status to processing
-            content.status = ContentStatus.PROCESSING
+            content.status = ContentStatus.processing
             db.commit()
 
             # Extract text based on content type
@@ -109,7 +109,7 @@ class IngestionService:
                 raise ValueError("Failed to store embeddings in vector database")
 
             # Update content status to completed
-            content.status = ContentStatus.COMPLETED
+            content.status = ContentStatus.completed
             db.commit()
 
             logger.info(
@@ -124,7 +124,7 @@ class IngestionService:
             try:
                 content = db.query(Content).filter(Content.id == content_id).first()
                 if content:
-                    content.status = ContentStatus.FAILED
+                    content.status = ContentStatus.failed
                     db.commit()
             except Exception as db_error:
                 logger.error(f"Failed to update content status: {db_error}")
@@ -216,21 +216,21 @@ class IngestionService:
             total_content = db.query(Content).count()
             pending_content = (
                 db.query(Content)
-                .filter(Content.status == ContentStatus.PENDING)
+                .filter(Content.status == ContentStatus.pending)
                 .count()
             )
             processing_content = (
                 db.query(Content)
-                .filter(Content.status == ContentStatus.PROCESSING)
+                .filter(Content.status == ContentStatus.processing)
                 .count()
             )
             completed_content = (
                 db.query(Content)
-                .filter(Content.status == ContentStatus.COMPLETED)
+                .filter(Content.status == ContentStatus.completed)
                 .count()
             )
             failed_content = (
-                db.query(Content).filter(Content.status == ContentStatus.FAILED).count()
+                db.query(Content).filter(Content.status == ContentStatus.failed).count()
             )
 
             return {
@@ -261,7 +261,7 @@ class IngestionService:
         try:
             failed_content = (
                 db.query(Content)
-                .filter(Content.status == ContentStatus.FAILED)
+                .filter(Content.status == ContentStatus.failed)
                 .limit(limit)
                 .all()
             )
@@ -269,7 +269,7 @@ class IngestionService:
             reprocessed_count = 0
             for content in failed_content:
                 # Reset to pending status
-                content.status = ContentStatus.PENDING
+                content.status = ContentStatus.pending
                 db.commit()
 
                 # Add to processing queue

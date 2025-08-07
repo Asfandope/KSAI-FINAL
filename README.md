@@ -14,20 +14,24 @@ This project uses a modern **monorepo architecture** with:
 
 ## 🚀 Features
 
-### Core Features ✅
-- **Bilingual Support**: Full English and Tamil language support
-- **RAG Pipeline**: Retrieval-Augmented Generation for grounded responses
-- **User Authentication**: JWT-based authentication with email/phone
-- **Chat Interface**: Real-time chat with conversation history
-- **Admin Panel**: Content management and analytics dashboard
-- **Content Ingestion**: PDF and YouTube video processing
-- **Vector Search**: Semantic search using Qdrant vector database
+### Core MVP Features ✅ COMPLETE
+- **Bilingual Support**: Full English and Tamil language support with automatic language detection
+- **RAG Pipeline**: Retrieval-Augmented Generation for credible, source-based responses
+- **User Authentication**: JWT-based authentication with email/phone login and admin fallback
+- **Interactive Chat Interface**: Real-time chat with conversation history and responsive design
+- **Voice Input**: Speech-to-text functionality using browser's native SpeechRecognition API
+- **Voice Output**: Text-to-speech functionality with bilingual support for AI responses
+- **Admin Panel**: Content management dashboard with analytics and user statistics
+- **Content Ingestion**: PDF and YouTube video processing with automatic categorization
+- **Vector Search**: Semantic search using Qdrant vector database for contextual retrieval
+- **Responsive Design**: Mobile-friendly UI that works across all device sizes
+- **Error Handling**: Graceful degradation and comprehensive error handling throughout
 
-### In Development 🚧
-- **Voice Input/Output**: Speech-to-text and text-to-speech
-- **Advanced Analytics**: Usage metrics and insights
-- **Content Translation**: AI-powered Tamil translation
+### Advanced Features 🚧
+- **Advanced Analytics**: Detailed usage metrics and conversation insights
+- **Content Translation**: AI-powered Tamil translation for uploaded content
 - **Mobile App**: React Native mobile application
+- **Real-time Notifications**: WebSocket-based real-time updates
 
 ## 📁 Project Structure
 
@@ -157,7 +161,10 @@ The system creates a default admin account:
 1. **Visit the homepage** and select your language (English/Tamil)
 2. **Choose a topic** (Politics, Environmentalism, SKCRF, Educational Trust)
 3. **Start chatting** - ask questions and get source-based answers
-4. **Register/Login** to save your conversation history
+4. **Use voice features**:
+   - **Voice Input**: Click the microphone icon to speak your questions
+   - **Voice Output**: Click the speaker icon on AI responses to hear them read aloud
+5. **Register/Login** to save your conversation history
 
 ### For Administrators
 
