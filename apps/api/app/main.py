@@ -1,12 +1,29 @@
+# In apps/api/app/main.py
+
+from pathlib import Path  # Add this import
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import time
+
+# --- START OF CHANGE ---
+# Explicitly find and load the .env file from the same directory as this script.
+# This is the most reliable way to ensure it's loaded.
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
+# --- END OF CHANGE ---
 
 from .core.config import settings
 from .routers import admin, auth, chat, content
 
-load_dotenv()
+# Add logging configuration
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    force=True
+)
 
 app = FastAPI(
     title="KS AI API",
@@ -24,6 +41,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add logging middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger = logging.getLogger("app.middleware")
+    start_time = time.time()
+    
+    logger.info(f"🚀 {request.method} {request.url}")
+    
+    # Log request body for POST requests to /chat
+    if request.method == "POST" and "/chat" in str(request.url):
+        logger.info("📩 Chat request detected!")
+        
+    response = await call_next(request)
+    
+    process_time = time.time() - start_time
+    logger.info(f"✅ {request.method} {request.url} - {response.status_code} ({process_time:.3f}s)")
+    
+    return response
 
 
 # Health check endpoint

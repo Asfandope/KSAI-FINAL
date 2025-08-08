@@ -1,4 +1,6 @@
-import logging
+# apps/api/app/routers/chat.py
+
+import logging # Add this import
 from typing import Optional
 
 from fastapi import APIRouter, Depends
@@ -12,7 +14,7 @@ from ..models.user import User
 from ..services.auth import get_current_user
 
 router = APIRouter()
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) # Add this line to get a logger instance
 
 
 # Pydantic models
@@ -40,6 +42,21 @@ async def chat(
     db: Session = Depends(get_db),
 ):
     """Process chat message and return AI response"""
+    
+    # CRITICAL: Basic logging to verify function is called
+    print("*** CHAT ENDPOINT HIT ***")
+    logger.info("*** CHAT ENDPOINT HIT ***")
+    
+    # --- LOGGING START ---
+    logger.info("="*60)
+    logger.info("CHAT REQUEST RECEIVED")
+    logger.info(f"Query: '{request.query}'")
+    logger.info(f"Topic: {request.topic}")
+    logger.info(f"Language: {request.language}")
+    logger.info(f"Conversation ID: {request.conversation_id}")
+    logger.info(f"User ID: {current_user.id}")
+    logger.info("="*60)
+    # --- LOGGING END ---
 
     try:
         # Find or create conversation
@@ -70,7 +87,11 @@ async def chat(
         db.add(user_message)
         db.commit()
     except Exception as db_error:
-        # Database connection issues - create fallback conversation
+        # --- LOGGING START ---
+        logger.error(f"Database error in chat router: {db_error}", exc_info=True)
+        # --- LOGGING END ---
+        # Rollback the transaction on error
+        db.rollback()
         import uuid
         conversation = type('MockConversation', (), {
             'id': str(uuid.uuid4()),
@@ -102,41 +123,60 @@ async def chat(
             conversation_context = []
 
     # Process query through RAG
-    # Convert string language to Language enum
     language_enum = Language.en if request.language.lower() == "en" else Language.ta
     
-    try:
-        rag_response = await rag_service.process_query(
-            query=request.query,
-            topic=request.topic,
-            language=language_enum,
-            conversation_context=conversation_context,
-        )
-        
-        logger.info(f"RAG response: {rag_response}")
-        
-        ai_response_text = rag_response.get(
-            "answer", "I apologize, but I'm unable to process your query at the moment."
-        )
-        
-        if not ai_response_text or ai_response_text.strip() == "":
-            ai_response_text = "I apologize, but I received an empty response. Please try again."
-            
-    except Exception as e:
-        logger.error(f"RAG processing failed: {e}")
-        ai_response_text = f"I apologize, but I encountered an error processing your query: {str(e)}"
+    logger.info("\n" + "-"*40)
+    logger.info("SENDING TO RAG SERVICE...")
+    logger.info("-"*40)
+    
+    rag_response = await rag_service.process_query(
+        query=request.query,
+        topic=request.topic,
+        language=language_enum,
+        conversation_context=conversation_context,
+    )
+
+    # --- LOGGING START ---
+    logger.info("\n" + "="*60)
+    logger.info("RAG SERVICE RESPONSE")
+    logger.info(f"Success: {rag_response.get('success')}")
+    logger.info(f"Sources Found: {len(rag_response.get('sources', []))}")
+    if rag_response.get('success'):
+        answer_preview = rag_response.get('answer', '')[:200]
+        logger.info(f"Answer Preview: {answer_preview}...")
+        if rag_response.get('sources'):
+            logger.info("Sources:")
+            for idx, source in enumerate(rag_response.get('sources', [])[:3], 1):
+                logger.info(f"  {idx}. {source.get('title', 'Unknown')} ({source.get('source_type', 'unknown')})") 
+    else:
+        logger.warning(f"RAG Error: {rag_response.get('error', 'Unknown error')}")
+    logger.info("="*60)
+    # --- LOGGING END ---
+
+    ai_response_text = rag_response.get(
+        "answer", "I apologize, but I'm unable to process your query at the moment."
+    )
+    
+    # --- LOGGING START ---
+    # Add a check for empty or whitespace-only responses
+    if not ai_response_text or not ai_response_text.strip():
+        logger.warning("RAG service returned an empty or whitespace answer. Sending a fallback message.")
+        ai_response_text = "I'm sorry, I couldn't find a specific answer for that. Could you try rephrasing your question?"
+    
+    logger.info("\n" + "-"*40)
+    logger.info("FINAL RESPONSE TO USER")
+    logger.info(f"Response Length: {len(ai_response_text)} characters")
+    logger.info(f"Response: {ai_response_text[:150]}...")
+    logger.info("-"*40 + "\n")
+    # --- LOGGING END ---
 
     # Add source information if available
-    try:
-        sources = rag_response.get("sources", [])
-        if sources and rag_response.get("success", False):
-            sources_text = "\n\nSources:\n"
-            for i, source in enumerate(sources[:3], 1):  # Limit to top 3 sources
-                sources_text += f"{i}. {source.get('title', 'Unknown')} ({source.get('source_type', 'unknown')})\n"
-            ai_response_text += sources_text
-    except NameError:
-        # rag_response not defined if there was an error
-        pass
+    sources = rag_response.get("sources", [])
+    if sources and rag_response.get("success", False):
+        sources_text = "\n\nSources:\n"
+        for i, source in enumerate(sources[:3], 1):  # Limit to top 3 sources
+            sources_text += f"{i}. {source.get('title', 'Unknown')} ({source.get('source_type', 'unknown')})\n"
+        ai_response_text += sources_text
 
     # Save AI response (only if we have a real conversation with database connection)
     try:
@@ -162,8 +202,12 @@ async def chat(
                 'video_timestamp_seconds': None,
                 'created_at': datetime.utcnow()
             })()
-    except Exception:
-        # Create a mock message if database save fails
+    except Exception as db_save_error:
+        # --- LOGGING START ---
+        logger.error(f"Database error saving AI message: {db_save_error}", exc_info=True)
+        # --- LOGGING END ---
+        # Rollback the transaction on error
+        db.rollback()
         import uuid
         from datetime import datetime
         ai_message = type('MockMessage', (), {
@@ -178,10 +222,10 @@ async def chat(
 
     return MessageResponse(
         id=str(ai_message.id),
-        sender=ai_message.sender.value if hasattr(ai_message.sender, 'value') else ai_message.sender,
+        sender=ai_message.sender.value,
         text_content=ai_message.text_content,
         image_url=ai_message.image_url,
         video_url=ai_message.video_url,
         video_timestamp=ai_message.video_timestamp_seconds,
-        created_at=ai_message.created_at.isoformat() if hasattr(ai_message.created_at, 'isoformat') else str(ai_message.created_at),
+        created_at=ai_message.created_at.isoformat(),
     )

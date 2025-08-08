@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -10,6 +11,8 @@ from sqlalchemy.orm import Session
 from ..core.config import settings
 from ..db.database import get_db
 from ..models.user import User
+
+logger = logging.getLogger(__name__)
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -82,16 +85,40 @@ async def get_current_user(
 
     # Handle fallback admin token
     if user_id == "admin-fallback":
-        # Create a mock admin user for fallback scenarios
+        # Check if admin user exists in database, create if not
+        import uuid
         from ..models.user import UserRole
-        class MockUser:
-            def __init__(self):
-                self.id = "admin-fallback"
-                self.email = "admin@ksai.com"
-                self.phone_number = None
-                self.role = UserRole.admin
-                self.created_at = datetime.utcnow()
-        return MockUser()
+        admin_uuid = str(uuid.UUID('00000000-0000-0000-0000-000000000001'))
+        
+        try:
+            # Try to get existing admin user
+            admin_user = db.query(User).filter(User.id == admin_uuid).first()
+            if admin_user:
+                return admin_user
+            
+            # Create admin user if it doesn't exist
+            admin_user = User(
+                id=admin_uuid,
+                email="admin@ksai.com",
+                phone_number=None,
+                password_hash=get_password_hash("admin123"),  # Default password, should be changed
+                role=UserRole.admin
+            )
+            db.add(admin_user)
+            db.commit()
+            db.refresh(admin_user)
+            return admin_user
+        except Exception as e:
+            logger.warning(f"Could not create/fetch admin user: {e}")
+            # Return mock user if database operations fail
+            class MockUser:
+                def __init__(self):
+                    self.id = admin_uuid
+                    self.email = "admin@ksai.com"
+                    self.phone_number = None
+                    self.role = UserRole.admin
+                    self.created_at = datetime.utcnow()
+            return MockUser()
     
     try:
         user = db.query(User).filter(User.id == user_id).first()
@@ -99,17 +126,6 @@ async def get_current_user(
             raise credentials_exception
         return user
     except Exception:
-        # Database connection issue - if it's admin fallback, allow it
-        if user_id == "admin-fallback":
-            from ..models.user import UserRole
-            class MockUser:
-                def __init__(self):
-                    self.id = "admin-fallback"
-                    self.email = "admin@ksai.com"
-                    self.phone_number = None
-                    self.role = UserRole.admin
-                    self.created_at = datetime.utcnow()
-            return MockUser()
         raise credentials_exception
 
 

@@ -65,7 +65,24 @@ export function ChatInterface() {
         throw new Error("Failed to send message");
       }
 
-      const aiMessage = await response.json();
+      const aiMessageResponse = await response.json();
+      
+      // Map backend response to frontend Message format
+      const aiMessage = {
+        id: aiMessageResponse.id,
+        conversationId: currentConversation?.id || "",
+        sender: "ai" as const,
+        textContent: aiMessageResponse.text_content, // Map snake_case to camelCase
+        imageUrl: aiMessageResponse.image_url,
+        videoUrl: aiMessageResponse.video_url,
+        videoTimestamp: aiMessageResponse.video_timestamp,
+        createdAt: aiMessageResponse.created_at,
+      };
+      
+      // Debug logging
+      console.log("API Response:", aiMessageResponse);
+      console.log("Mapped Message:", aiMessage);
+      
       addMessage(aiMessage);
     } catch (error) {
       console.error("Failed to send message:", error);

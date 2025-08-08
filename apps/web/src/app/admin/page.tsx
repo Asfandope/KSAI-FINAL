@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/lib/state/useAuthStore";
 import { Button, Input } from "@ks-ai/ui";
-import { Upload, FileText, Youtube, Users, MessageCircle, Activity, Database, Settings, Search } from "lucide-react";
+import { Upload, FileText, Youtube, Users, MessageCircle, Activity, Database, Settings, Search, X } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -173,6 +173,35 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteContent = async (contentId: string, title: string) => {
+    if (!confirm(`Are you sure you want to delete "${title}"? This will also remove all associated vectors and embeddings.`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/admin/content/${contentId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        alert("Content deleted successfully!");
+        loadContent();
+        loadDashboardData();
+        loadVectorCollections(); // Refresh vector stats
+      } else {
+        const error = await response.text();
+        throw new Error(error || "Delete failed");
+      }
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Delete failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -414,6 +443,7 @@ export default function AdminPage() {
                       <th className="text-left p-4">Category</th>
                       <th className="text-left p-4">Status</th>
                       <th className="text-left p-4">Created</th>
+                      <th className="text-left p-4">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -445,6 +475,17 @@ export default function AdminPage() {
                         </td>
                         <td className="p-4 text-sm text-muted-foreground">
                           {new Date(item.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="p-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteContent(item.id, item.title)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                            disabled={loading}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </td>
                       </tr>
                     ))}

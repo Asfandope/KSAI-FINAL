@@ -36,7 +36,7 @@ httpx==0.26.0
 requests==2.31.0
 
 # Development
-pytest==8.0.0
+pytest==7.4.4
 pytest-asyncio==0.23.4
 black==24.1.1
 isort==5.13.2
@@ -45,3 +45,5 @@ flake8==7.0.0
 # Utilities
 python-dotenv==1.0.1
 redis==5.0.1
+
+email-validator

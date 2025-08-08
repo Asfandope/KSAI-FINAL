@@ -1,13 +1,4 @@
-"""
-RAG (Retrieval-Augmented Generation) Service
-
-This service implements the core RAG pipeline:
-1. Query processing and embedding
-2. Semantic search in vector database
-3. Context retrieval and ranking
-4. LLM generation with grounded context
-5. Response formatting with source citations
-"""
+# apps/api/app/services/rag_service.py
 
 import logging
 from typing import Any, Dict, List, Optional
@@ -70,33 +61,57 @@ class RAGService:
         """
         try:
             if not self.is_available():
+                logger.error("RAG service is not available. Check OpenAI key, embedding service, and Qdrant health.")
                 return self._create_error_response("RAG service not available")
 
-            logger.info(
-                f"Processing query: '{query}' for topic: {topic}, language: {language}"
-            )
+            logger.info("\n" + "*"*50)
+            logger.info("RAG PIPELINE STARTED")
+            logger.info(f"Query: '{query}'")
+            logger.info(f"Topic: {topic}")
+            logger.info(f"Language: {language.value}")
+            logger.info("*"*50)
 
             # Step 1: Process and embed the query
             processed_query = self._preprocess_query(query, conversation_context)
+            logger.info(f"\n[STEP 1] Query preprocessing complete")
+            logger.info(f"Processed query: '{processed_query[:100]}...'")
+            
             query_embedding = embedding_service.generate_single_embedding(
                 processed_query
             )
 
             if not query_embedding:
+                logger.error("[ERROR] Failed to generate query embedding.")
                 return self._create_error_response("Failed to generate query embedding")
+            
+            logger.info(f"[STEP 1] Embedding generated successfully (dim: {len(query_embedding)})")
 
             # Step 2: Retrieve relevant context from vector database
+            logger.info(f"\n[STEP 2] Searching vector database...")
             context_chunks = await self._retrieve_context(
                 query_embedding=query_embedding,
                 topic=topic,
                 language=language,
                 limit=5,  # Top 5 most relevant chunks
             )
+            
+            logger.info(f"[STEP 2] Retrieved {len(context_chunks)} context chunks")
+            if context_chunks:
+                logger.info("Retrieved chunks:")
+                for idx, chunk in enumerate(context_chunks[:3], 1):
+                    score = chunk.get('score', 0)
+                    text_preview = chunk.get('text', '')[:100]
+                    logger.info(f"  {idx}. Score: {score:.3f} - {text_preview}...")
+            else:
+                logger.warning("[WARNING] No relevant context chunks found!")
+
 
             if not context_chunks:
+                logger.info("[FALLBACK] Using fallback response (no context found)")
                 return self._create_fallback_response(query, topic, language)
 
             # Step 3: Generate response using LLM
+            logger.info(f"\n[STEP 3] Generating response with LLM...")
             response = await self._generate_response(
                 query=query,
                 context_chunks=context_chunks,
@@ -104,13 +119,15 @@ class RAGService:
                 topic=topic,
             )
 
-            logger.info(
-                f"Successfully processed query, found {len(context_chunks)} relevant sources"
-            )
+            logger.info("\n" + "*"*50)
+            logger.info("RAG PIPELINE COMPLETED")
+            logger.info(f"Final answer length: {len(response.get('answer', ''))} chars")
+            logger.info(f"Sources used: {len(context_chunks)}")
+            logger.info("*"*50 + "\n")
             return response
 
         except Exception as e:
-            logger.error(f"RAG query processing failed: {e}")
+            logger.error(f"RAG query processing failed: {e}", exc_info=True)
             return self._create_error_response(f"Query processing failed: {str(e)}")
 
     def _preprocess_query(
@@ -143,11 +160,14 @@ class RAGService:
         """Retrieve relevant context chunks from vector database"""
         try:
             collection_name = self.collection_mapping.get(topic, "ks_general")
+            logger.info(f"  Collection: '{collection_name}'")
 
             # Set up filter conditions
             filter_conditions = {
                 "category": topic,
             }
+            logger.info(f"  Filters: {filter_conditions}")
+
 
             # Language filtering - include both target language and English content
             # This allows for cross-language retrieval when content is limited
@@ -160,9 +180,15 @@ class RAGService:
                 collection_name=collection_name,
                 query_vector=query_embedding,
                 limit=limit * 2,  # Get more results to filter
-                score_threshold=0.6,  # Relevance threshold
+                score_threshold=0.1,  # Lower threshold to get more results
                 filter_conditions=filter_conditions,
             )
+            
+            logger.info(f"  Qdrant returned: {len(search_results)} results")
+            if search_results:
+                scores = [r['score'] for r in search_results[:3]]
+                logger.info(f"  Top scores: {scores}")
+
 
             # Post-process and rank results
             processed_chunks = []
@@ -184,7 +210,7 @@ class RAGService:
             return processed_chunks
 
         except Exception as e:
-            logger.error(f"Context retrieval failed: {e}")
+            logger.error(f"Context retrieval failed: {e}", exc_info=True)
             return []
 
     async def _generate_response(
@@ -209,6 +235,9 @@ class RAGService:
 User Question: {query}
 
 Please provide a comprehensive answer based ONLY on the provided context. If the context doesn't contain enough information to answer the question, please say so clearly."""
+            
+            logger.info("  Sending request to OpenAI...")
+
 
             # Generate response
             response = self.llm_client.chat.completions.create(
@@ -222,6 +251,9 @@ Please provide a comprehensive answer based ONLY on the provided context. If the
             )
 
             answer = response.choices[0].message.content.strip()
+            logger.info(f"  LLM response received: {len(answer)} chars")
+            logger.info(f"  Response preview: {answer[:150]}...")
+
 
             # Format final response
             return {
@@ -231,18 +263,18 @@ Please provide a comprehensive answer based ONLY on the provided context. If the
                 "metadata": {
                     "query": query,
                     "topic": topic,
-                    "language": language,
+                    "language": language.value, # Use .value for JSON serialization
                     "model": self.model,
                     "sources_count": len(context_chunks),
                     "avg_relevance_score": sum(
                         chunk["score"] for chunk in context_chunks
                     )
-                    / len(context_chunks),
+                    / len(context_chunks) if context_chunks else 0,
                 },
             }
 
         except Exception as e:
-            logger.error(f"Response generation failed: {e}")
+            logger.error(f"Response generation failed: {e}", exc_info=True)
             return self._create_error_response(f"Failed to generate response: {str(e)}")
 
     def _format_context(self, context_chunks: List[Dict[str, Any]]) -> str:
@@ -286,6 +318,7 @@ CRITICAL INSTRUCTIONS:
 
     def _create_error_response(self, error_message: str) -> Dict[str, Any]:
         """Create standardized error response"""
+        logger.error(f"[ERROR] {error_message}")
         return {
             "success": False,
             "answer": "I apologize, but I'm unable to process your query at the moment. Please try again later.",
@@ -298,6 +331,7 @@ CRITICAL INSTRUCTIONS:
         self, query: str, topic: str, language: Language
     ) -> Dict[str, Any]:
         """Create fallback response when no relevant context is found"""
+        logger.info(f"Creating fallback response (no context found for '{query}')")
         if language == "ta":
             answer = f"மன்னிக்கவும், {topic} பற்றிய உங்கள் கேள்விக்கு எனது தரவுத்தளத்தில் போதுமான தகவல் இல்லை. தயவுசெய்து வேறு வழியில் கேள்வியை கேட்க முயற்சிக்கவும்."
         else:
@@ -310,7 +344,7 @@ CRITICAL INSTRUCTIONS:
             "metadata": {
                 "query": query,
                 "topic": topic,
-                "language": language,
+                "language": language.value,
                 "type": "fallback_response",
             },
         }
@@ -331,7 +365,7 @@ CRITICAL INSTRUCTIONS:
             return success_count == len(self.collection_mapping)
 
         except Exception as e:
-            logger.error(f"Failed to initialize collections: {e}")
+            logger.error(f"Failed to initialize collections: {e}", exc_info=True)
             return False
 
 

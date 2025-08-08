@@ -101,15 +101,34 @@ async def upload_content(
     db.commit()
     db.refresh(new_content)
 
-    # Trigger async processing pipeline
+    # Process content immediately to avoid async queue issues
     from ..services.ingestion_service import ingestion_service
+    import logging
+    logger = logging.getLogger(__name__)
 
-    await ingestion_service.queue_content_processing(str(new_content.id))
-
-    return UploadResponse(
-        message="Content uploaded successfully and is being processed",
-        content_id=str(new_content.id),
-    )
+    try:
+        logger.info(f"Starting immediate processing for content {new_content.id}")
+        success = await ingestion_service.process_content(str(new_content.id), db)
+        
+        if success:
+            logger.info(f"Content {new_content.id} processed successfully")
+            return UploadResponse(
+                message="Content uploaded and processed successfully",
+                content_id=str(new_content.id),
+            )
+        else:
+            logger.error(f"Content {new_content.id} processing failed")
+            return UploadResponse(
+                message="Content uploaded but processing failed",
+                content_id=str(new_content.id),
+            )
+    except Exception as e:
+        logger.error(f"Content {new_content.id} processing error: {e}")
+        logger.error("Full error details:", exc_info=True)
+        return UploadResponse(
+            message=f"Content uploaded but processing failed: {str(e)}",
+            content_id=str(new_content.id),
+        )
 
 
 @router.get("/content", response_model=List[ContentResponse])
@@ -133,6 +152,73 @@ async def list_content(
         )
         for item in content_items
     ]
+
+
+@router.delete("/content/{content_id}")
+async def delete_content(
+    content_id: str,
+    current_user: User = Depends(get_current_admin), 
+    db: Session = Depends(get_db)
+):
+    """Delete content and its associated vectors/embeddings"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # Find the content record
+        content = db.query(Content).filter(Content.id == content_id).first()
+        if not content:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Content not found"
+            )
+
+        logger.info(f"Deleting content: {content.title} (ID: {content_id})")
+
+        # Delete vectors from Qdrant
+        from ..services.qdrant_service import qdrant_service
+        
+        # Try to delete by content_id first (newer format)
+        vector_deleted = qdrant_service.delete_vectors_by_content_id(content_id)
+        
+        if not vector_deleted:
+            # Fallback: try to delete by source_url (older format)
+            logger.info("Trying to delete by source_url as fallback")
+            collections = ["ks_politics", "ks_environment", "ks_skcrf", "ks_education"]
+            for collection_name in collections:
+                qdrant_service.delete_vectors_by_source(collection_name, content.source_url)
+
+        # Delete any uploaded file if it's a PDF
+        if content.source_type == ContentType.pdf and content.source_url.startswith("/"):
+            try:
+                import os
+                file_path = content.source_url
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    logger.info(f"Deleted file: {file_path}")
+            except Exception as e:
+                logger.warning(f"Failed to delete file {content.source_url}: {e}")
+
+        # Delete the content record from database
+        db.delete(content)
+        db.commit()
+        
+        logger.info(f"Successfully deleted content {content_id}")
+        
+        return {
+            "message": f"Content '{content.title}' deleted successfully",
+            "deleted_vectors": vector_deleted
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to delete content {content_id}: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete content: {str(e)}"
+        )
 
 
 @router.get("/dashboard")
@@ -240,16 +326,26 @@ async def get_vector_collections(current_user: User = Depends(get_current_admin)
         
         for topic, collection_name in collection_mapping.items():
             try:
-                # Get collection info from Qdrant
-                info = qdrant_service.get_collection_info(collection_name)
-                collections_info.append({
-                    "name": collection_name,
-                    "topic": topic,
-                    "status": "active" if info else "inactive",
-                    "vectors_count": info.get("vectors_count", 0) if info else 0,
-                    "indexed_vectors_count": info.get("indexed_vectors_count", 0) if info else 0
-                })
-            except Exception:
+                # Get collection stats using simplified method to avoid parsing issues
+                stats = qdrant_service.get_collection_stats_simple(collection_name)
+                if stats:
+                    vector_count = stats.get("vector_count", 0)
+                    collections_info.append({
+                        "name": collection_name,
+                        "topic": topic,
+                        "status": stats.get("status", "unknown"),
+                        "vectors_count": vector_count,
+                        "indexed_vectors_count": vector_count  # Assume all vectors are indexed
+                    })
+                else:
+                    collections_info.append({
+                        "name": collection_name,
+                        "topic": topic,
+                        "status": "error",
+                        "vectors_count": 0,
+                        "indexed_vectors_count": 0
+                    })
+            except Exception as e:
                 collections_info.append({
                     "name": collection_name,
                     "topic": topic,

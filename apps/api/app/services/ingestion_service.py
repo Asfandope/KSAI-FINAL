@@ -119,13 +119,17 @@ class IngestionService:
 
         except Exception as e:
             logger.error(f"Content processing failed for {content_id}: {e}")
+            logger.error(f"Full error traceback:", exc_info=True)
 
-            # Update status to failed
+            # Update status to failed with error details
             try:
                 content = db.query(Content).filter(Content.id == content_id).first()
                 if content:
                     content.status = ContentStatus.failed
+                    # Add error details to title for debugging
+                    content.title = f"{content.title} [ERROR: {str(e)[:100]}]"
                     db.commit()
+                    logger.info(f"Marked content {content_id} as failed with error details")
             except Exception as db_error:
                 logger.error(f"Failed to update content status: {db_error}")
 
@@ -136,11 +140,13 @@ class IngestionService:
         try:
             # For now, we'll assume the PDF is already stored locally
             # In production, this would download from S3
+            import os
             file_path = content.source_url
 
-            if not file_path.startswith("/"):
+            # Check if it's an absolute path (works for both Windows and Unix)
+            if not os.path.isabs(file_path):
                 # If it's not an absolute path, assume it's a relative path in uploads
-                file_path = f"uploads/{file_path}"
+                file_path = os.path.join("uploads", file_path)
 
             text, metadata = document_service.extract_pdf_text(file_path)
             return text, metadata
@@ -159,30 +165,42 @@ class IngestionService:
     async def _process_youtube(self, content: Content) -> tuple[str, Dict[str, Any]]:
         """Process YouTube video content"""
         try:
-            text, metadata = document_service.extract_youtube_transcript(
+            logger.info(f"Extracting transcript for YouTube video: {content.source_url}")
+            
+            # FORCE RELOAD of document service to bypass caching issues
+            import importlib
+            from ..services import document_service as doc_service_module
+            importlib.reload(doc_service_module)
+            
+            text, metadata = doc_service_module.document_service.extract_youtube_transcript(
                 content.source_url
             )
+            logger.info(f"Successfully extracted YouTube transcript: {len(text)} characters")
             return text, metadata
 
         except Exception as e:
-            logger.error(f"YouTube processing failed: {e}")
-            # Return placeholder content for demo
-            return (
-                f"Sample transcript for YouTube video: {content.title}\n\n"
-                f"This is placeholder content for the YouTube processing demo. "
-                f"In production, actual video transcript would be extracted here. "
-                f"URL: {content.source_url}, Category: {content.category}, "
-                f"Language: {content.language.value}",
-                {"source_type": "youtube", "duration": 600},
-            )
+            logger.error(f"YouTube processing failed for {content.source_url}: {e}")
+            logger.error(f"Full error details: ", exc_info=True)
+            
+            # Raise the error to properly mark content as failed
+            raise e
 
     async def queue_content_processing(self, content_id: str) -> None:
         """Add content to processing queue"""
-        await self.processing_queue.put(content_id)
-
-        # Start processing if not already running
-        if not self.is_processing:
-            asyncio.create_task(self._process_queue())
+        # For better reliability, process immediately instead of using async queue
+        # This avoids async context and database session issues
+        try:
+            logger.info(f"Processing content immediately: {content_id}")
+            from ..db.database import SessionLocal
+            db = SessionLocal()
+            try:
+                success = await self.process_content(content_id, db)
+                logger.info(f"Immediate processing result for {content_id}: {success}")
+            finally:
+                db.close()
+        except Exception as e:
+            logger.error(f"Immediate processing failed for {content_id}: {e}")
+            logger.error("Full error details:", exc_info=True)
 
     async def _process_queue(self) -> None:
         """Process queued content items"""
@@ -192,10 +210,17 @@ class IngestionService:
             while not self.processing_queue.empty():
                 content_id = await self.processing_queue.get()
 
-                # Get database session
-                db = next(get_db())
+                # Get database session - use proper dependency injection
+                from ..db.database import SessionLocal
+                db = SessionLocal()
+                
                 try:
-                    await self.process_content(content_id, db)
+                    logger.info(f"Starting queue processing for content {content_id}")
+                    success = await self.process_content(content_id, db)
+                    logger.info(f"Queue processing result for {content_id}: {success}")
+                except Exception as e:
+                    logger.error(f"Queue processing failed for {content_id}: {e}")
+                    logger.error("Full error details:", exc_info=True)
                 finally:
                     db.close()
 
@@ -207,6 +232,7 @@ class IngestionService:
 
         except Exception as e:
             logger.error(f"Queue processing failed: {e}")
+            logger.error("Full queue processing error:", exc_info=True)
         finally:
             self.is_processing = False
 

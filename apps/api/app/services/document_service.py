@@ -1,11 +1,13 @@
 """
-Document Processing Service
+Document Processing Service - UPDATED 2025-08-08 04:25:00
 
 This service handles:
 - PDF text extraction
 - YouTube video transcript extraction
 - Document preprocessing and cleaning
 - File management and storage
+
+CRITICAL FIX: YouTube API updated to use api.fetch() method
 """
 
 import logging
@@ -27,15 +29,23 @@ except ImportError:
 # YouTube processing
 try:
     import re
-
-    from pytube import YouTube
-    from youtube_transcript_api import YouTubeTranscriptApi
+    
+    # Use importlib to avoid caching issues
+    import importlib
+    youtube_transcript_api = importlib.import_module('youtube_transcript_api')
+    YouTubeTranscriptApi = youtube_transcript_api.YouTubeTranscriptApi
+    
+    # Force reload if already cached
+    importlib.reload(youtube_transcript_api)
+    YouTubeTranscriptApi = youtube_transcript_api.YouTubeTranscriptApi
 
     YOUTUBE_AVAILABLE = True
-except ImportError:
+    logger = logging.getLogger(__name__)
+    logger.info("YouTube transcript API loaded successfully with cache bypass")
+except ImportError as e:
     YOUTUBE_AVAILABLE = False
     logger = logging.getLogger(__name__)
-    logger.warning("YouTube libraries not available - YouTube processing disabled")
+    logger.warning(f"YouTube libraries not available - YouTube processing disabled: {e}")
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +123,7 @@ class DocumentService:
 
     def extract_youtube_transcript(self, video_url: str) -> Tuple[str, Dict[str, Any]]:
         """
-        Extract transcript from a YouTube video
+        Extract transcript from a YouTube video using a robust, standalone processor.
 
         Args:
             video_url: YouTube video URL
@@ -125,53 +135,20 @@ class DocumentService:
             raise ImportError("YouTube libraries not available")
 
         try:
-            # Extract video ID from URL
-            video_id = self._extract_video_id(video_url)
-            if not video_id:
-                raise ValueError(f"Could not extract video ID from URL: {video_url}")
-
-            # Get video metadata
-            yt = YouTube(video_url)
-            metadata = {
-                "video_id": video_id,
-                "title": yt.title,
-                "author": yt.author,
-                "length": yt.length,
-                "views": yt.views,
-                "publish_date": str(yt.publish_date) if yt.publish_date else "",
-                "description": yt.description[:500] + "..."
-                if len(yt.description) > 500
-                else yt.description,
-                "source_type": "youtube",
-                "video_url": video_url,
-            }
-
-            # Get transcript
-            transcript_list = YouTubeTranscriptApi.get_transcript(
-                video_id, languages=["en", "ta"]  # Support English and Tamil
-            )
-
-            # Format transcript with timestamps
-            formatted_transcript = ""
-            for entry in transcript_list:
-                start_time = int(entry["start"])
-                minutes = start_time // 60
-                seconds = start_time % 60
-                timestamp = f"{minutes:02d}:{seconds:02d}"
-
-                formatted_transcript += f"[{timestamp}] {entry['text']}\n"
-
-            if not formatted_transcript.strip():
-                raise ValueError("No transcript found for video")
-
+            # Use the new, more reliable youtube_processor
+            from .youtube_processor import get_youtube_transcript
+            
+            logger.info(f"Using robust YouTube processor for: {video_url}")
+            text, metadata = get_youtube_transcript(video_url)
+            
             logger.info(
-                f"Extracted YouTube transcript: {len(formatted_transcript)} characters"
+                f"Successfully extracted YouTube transcript: {len(text)} characters using '{metadata.get('method_used', 'unknown')}' method"
             )
-            return formatted_transcript.strip(), metadata
+            return text, metadata
 
         except Exception as e:
-            logger.error(f"Failed to extract YouTube transcript: {e}")
-            raise
+            logger.error(f"Failed to extract YouTube transcript: {e}", exc_info=True)
+            raise Exception(f"YouTube transcript extraction failed: {e}")
 
     def _extract_video_id(self, url: str) -> Optional[str]:
         """Extract YouTube video ID from various URL formats"""

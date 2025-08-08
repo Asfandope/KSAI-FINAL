@@ -1,3 +1,5 @@
+# In apps/api/alembic/versions/0001_initial_schema.py
+
 """Initial schema
 
 Revision ID: 0001
@@ -18,14 +20,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create enum types
-    op.execute("CREATE TYPE user_role AS ENUM ('user', 'admin')")
-    op.execute("CREATE TYPE content_type AS ENUM ('pdf', 'youtube')")
-    op.execute(
-        "CREATE TYPE content_status AS ENUM ('pending', 'processing', 'completed', 'failed')"
-    )
-    op.execute("CREATE TYPE language_code AS ENUM ('en', 'ta')")
-    op.execute("CREATE TYPE message_sender AS ENUM ('user', 'ai')")
+    # NOTE: The explicit CREATE TYPE statements have been removed.
+    # SQLAlchemy's create_table operation will handle the creation of ENUM types automatically
+    # based on the model definitions.
 
     # Create users table
     op.create_table(
@@ -41,7 +38,7 @@ def upgrade() -> None:
         sa.Column("password_hash", sa.String(length=255), nullable=False),
         sa.Column(
             "role",
-            postgresql.ENUM("user", "admin", name="user_role"),
+            postgresql.ENUM("user", "admin", name="user_role", create_type=True), # Changed create_type to True
             nullable=False,
             server_default="user",
         ),
@@ -78,12 +75,12 @@ def upgrade() -> None:
         sa.Column("source_url", sa.Text(), nullable=False),
         sa.Column(
             "source_type",
-            postgresql.ENUM("pdf", "youtube", name="content_type"),
+            postgresql.ENUM("pdf", "youtube", name="content_type", create_type=True), # Changed create_type to True
             nullable=False,
         ),
         sa.Column(
             "language",
-            postgresql.ENUM("en", "ta", name="language_code"),
+            postgresql.ENUM("en", "ta", name="language_code", create_type=True), # Changed create_type to True
             nullable=False,
         ),
         sa.Column("category", sa.String(length=255), nullable=False),
@@ -93,7 +90,7 @@ def upgrade() -> None:
         sa.Column(
             "status",
             postgresql.ENUM(
-                "pending", "processing", "completed", "failed", name="content_status"
+                "pending", "processing", "completed", "failed", name="content_status", create_type=True # Changed create_type to True
             ),
             nullable=False,
             server_default="pending",
@@ -152,7 +149,7 @@ def upgrade() -> None:
         sa.Column("conversation_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column(
             "sender",
-            postgresql.ENUM("user", "ai", name="message_sender"),
+            postgresql.ENUM("user", "ai", name="message_sender", create_type=True), # Changed create_type to True
             nullable=False,
         ),
         sa.Column("text_content", sa.Text(), nullable=False),
@@ -220,7 +217,7 @@ def downgrade() -> None:
     op.drop_table("content")
     op.drop_table("users")
 
-    # Drop enum types
+    # Drop enum types - This is now essential in the downgrade
     op.execute("DROP TYPE message_sender")
     op.execute("DROP TYPE language_code")
     op.execute("DROP TYPE content_status")
