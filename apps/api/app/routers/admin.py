@@ -424,3 +424,273 @@ async def update_system_settings(
     # For MVP, we'll just return success
     # In production, this would update configuration
     return {"message": "Settings updated successfully", "settings": settings_data}
+
+
+# ============ KNOWLEDGE BASE ENDPOINTS ============
+
+@router.get("/knowledge-base/search")
+async def search_knowledge_base(
+    query: str,
+    category: Optional[str] = None,
+    limit: int = 10,
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Search the knowledge base using semantic search"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        from ..services.embedding_service import embedding_service
+        from ..services.qdrant_service import qdrant_service
+        from ..services.rag_service import rag_service
+        
+        # Generate query embedding
+        query_embedding = embedding_service.generate_single_embedding(query)
+        
+        # Determine which collection to search
+        if category and category in rag_service.collection_mapping:
+            collection_name = rag_service.collection_mapping[category]
+            collections = [collection_name]
+        else:
+            # Search all collections
+            collections = list(rag_service.collection_mapping.values())
+        
+        all_results = []
+        for collection in collections:
+            try:
+                results = qdrant_service.search_similar(
+                    collection_name=collection,
+                    query_vector=query_embedding,
+                    limit=limit,
+                    score_threshold=0.0
+                )
+                
+                # Add collection info to results
+                for result in results:
+                    result['collection'] = collection
+                    result['category'] = next(
+                        (k for k, v in rag_service.collection_mapping.items() if v == collection),
+                        "general"
+                    )
+                
+                all_results.extend(results)
+            except Exception as e:
+                logger.warning(f"Failed to search collection {collection}: {e}")
+                continue
+        
+        # Sort by score and limit
+        all_results.sort(key=lambda x: x.get('score', 0), reverse=True)
+        all_results = all_results[:limit]
+        
+        return {
+            "query": query,
+            "results": all_results,
+            "total": len(all_results)
+        }
+        
+    except Exception as e:
+        logger.error(f"Knowledge base search failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/knowledge-base/test-query")
+async def test_knowledge_base_query(
+    request: dict,
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Test a query against the knowledge base and get RAG response"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        from ..services.rag_service import rag_service
+        from ..models.content import Language
+        
+        query = request.get("query", "")
+        topic = request.get("topic", "general")
+        language = request.get("language", "en")
+        
+        # Convert language string to enum
+        lang_enum = Language.en if language == "en" else Language.ta
+        
+        # Process through RAG pipeline
+        response = await rag_service.process_query(
+            query=query,
+            topic=topic,
+            language=lang_enum,
+            conversation_context=[]
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Test query failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/knowledge-base/stats")
+async def get_knowledge_base_stats(
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Get comprehensive knowledge base statistics"""
+    import logging
+    from datetime import datetime, timedelta
+    logger = logging.getLogger(__name__)
+    
+    try:
+        from ..services.qdrant_service import qdrant_service
+        from ..services.rag_service import rag_service
+        from ..models.conversation import Conversation
+        
+        stats = {
+            "categories": {},
+            "total_documents": 0,
+            "total_vectors": 0,
+            "collections": []
+        }
+        
+        # Get content statistics by category
+        for category in ["Politics", "Environmentalism", "SKCRF", "Educational Trust"]:
+            content_count = db.query(Content).filter(
+                Content.category == category,
+                Content.status == ContentStatus.completed
+            ).count()
+            
+            stats["categories"][category] = {
+                "documents": content_count,
+                "vectors": 0
+            }
+            stats["total_documents"] += content_count
+        
+        # Get vector statistics
+        for topic, collection_name in rag_service.collection_mapping.items():
+            try:
+                collection_stats = qdrant_service.get_collection_stats_simple(collection_name)
+                vector_count = collection_stats.get("vector_count", 0)
+                
+                stats["collections"].append({
+                    "name": collection_name,
+                    "topic": topic,
+                    "vectors": vector_count,
+                    "status": collection_stats.get("status", "unknown")
+                })
+                
+                if topic in stats["categories"]:
+                    stats["categories"][topic]["vectors"] = vector_count
+                
+                stats["total_vectors"] += vector_count
+                
+            except Exception as e:
+                logger.warning(f"Failed to get stats for {collection_name}: {e}")
+                continue
+        
+        # Add general statistics
+        stats["general"] = {
+            "total_users": db.query(User).count(),
+            "active_sessions": db.query(Conversation).filter(
+                Conversation.created_at >= datetime.utcnow() - timedelta(hours=24)
+            ).count(),
+            "languages_supported": ["English", "Tamil"]
+        }
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Failed to get knowledge base stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/knowledge-base/reindex/{category}")
+async def reindex_category(
+    category: str,
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Reindex all content in a specific category"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        from ..services.ingestion_service import ingestion_service
+        
+        # Get all content in category
+        content_items = db.query(Content).filter(
+            Content.category == category
+        ).all()
+        
+        reprocessed = 0
+        for content in content_items:
+            # Reset status to pending for reprocessing
+            content.status = ContentStatus.pending
+            db.commit()
+            
+            # Queue for reprocessing
+            await ingestion_service.queue_content_processing(str(content.id))
+            reprocessed += 1
+        
+        return {
+            "category": category,
+            "reprocessed": reprocessed,
+            "message": f"Queued {reprocessed} items for reindexing"
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to reindex category {category}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/knowledge-base/content/{content_id}/chunks")
+async def get_content_chunks(
+    content_id: str,
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all chunks for a specific content item"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        from ..services.qdrant_service import qdrant_service
+        from ..services.rag_service import rag_service
+        
+        # Get content item
+        content = db.query(Content).filter(Content.id == content_id).first()
+        if not content:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        # Determine collection
+        collection_name = rag_service.collection_mapping.get(
+            content.category, 
+            "ks_general"
+        )
+        
+        # Search for chunks with this content_id
+        from ..services.embedding_service import embedding_service
+        dummy_embedding = embedding_service.generate_single_embedding("test")
+        
+        results = qdrant_service.search_similar(
+            collection_name=collection_name,
+            query_vector=dummy_embedding,
+            limit=1000,  # Get all chunks
+            score_threshold=0.0
+        )
+        
+        # Filter for this content_id
+        content_chunks = [
+            r for r in results 
+            if r.get('metadata', {}).get('content_id') == content_id
+        ]
+        
+        return {
+            "content_id": content_id,
+            "title": content.title,
+            "chunks": content_chunks,
+            "total": len(content_chunks)
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get content chunks: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

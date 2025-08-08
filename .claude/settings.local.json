@@ -4,7 +4,13 @@
       "Bash(python:*)",
       "Bash(pip install:*)",
       "Bash(pip show:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(npm run build:*)",
+      "Bash(sed:*)",
+      "Bash(npx next lint:*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

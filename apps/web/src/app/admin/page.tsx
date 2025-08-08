@@ -34,12 +34,6 @@ export default function AdminPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(false);
-  
-  // New admin pages state
-  const [users, setUsers] = useState<any[]>([]);
-  const [vectorCollections, setVectorCollections] = useState<any[]>([]);
-  const [systemSettings, setSystemSettings] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
@@ -49,6 +43,18 @@ export default function AdminPage() {
     language: "en",
     needsTranslation: false,
   });
+
+  // Knowledge Base state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState("all");
+  const [searchResults, setSearchResults] = useState([]);
+  const [knowledgeBaseStats, setKnowledgeBaseStats] = useState(null);
+  const [testQuery, setTestQuery] = useState("");
+  const [testTopic, setTestTopic] = useState("general");
+  const [testResponse, setTestResponse] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [testLoading, setTestLoading] = useState(false);
+  const [reindexLoading, setReindexLoading] = useState(false);
 
   const loadDashboardData = useCallback(async () => {
     try {
@@ -78,57 +84,120 @@ export default function AdminPage() {
     }
   }, [token]);
 
-  const loadUsers = useCallback(async () => {
+  // Knowledge Base functions
+  const loadKnowledgeBaseStats = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin/users`, {
+      const response = await fetch(`${API_BASE}/admin/knowledge-base/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
         const data = await response.json();
-        setUsers(data);
+        setKnowledgeBaseStats(data);
       }
     } catch (error) {
-      console.error("Failed to load users:", error);
+      console.error("Failed to load knowledge base stats:", error);
     }
   }, [token]);
 
-  const loadVectorCollections = useCallback(async () => {
+  const searchKnowledgeBase = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setSearchLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/admin/vector-db/collections`, {
+      const params = new URLSearchParams({ 
+        query: searchQuery,
+        limit: "20"
+      });
+      
+      if (searchCategory !== "all") {
+        params.append("category", searchCategory);
+      }
+      
+      const response = await fetch(`${API_BASE}/admin/knowledge-base/search?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       if (response.ok) {
         const data = await response.json();
-        setVectorCollections(data);
+        setSearchResults(data.results || []);
+      } else {
+        console.error("Search failed:", response.status);
+        alert("Search failed. Please try again.");
       }
     } catch (error) {
-      console.error("Failed to load vector collections:", error);
+      console.error("Knowledge base search failed:", error);
+      alert("Search failed. Please try again.");
+    } finally {
+      setSearchLoading(false);
     }
-  }, [token]);
+  };
 
-  const loadSettings = useCallback(async () => {
+  const testKnowledgeBase = async () => {
+    if (!testQuery.trim()) return;
+    
+    setTestLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/admin/settings`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`${API_BASE}/admin/knowledge-base/test-query`, {
+        method: "POST",
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          query: testQuery,
+          topic: testTopic,
+          language: "en"
+        })
       });
+      
       if (response.ok) {
         const data = await response.json();
-        setSystemSettings(data);
+        console.log("RAG Response:", data); // Debug log
+        setTestResponse(data);
+      } else {
+        const errorText = await response.text();
+        console.error("Test query failed:", response.status, errorText);
+        alert("Test query failed. Please try again.");
       }
     } catch (error) {
-      console.error("Failed to load settings:", error);
+      console.error("RAG test failed:", error);
+      alert("RAG test failed. Please try again.");
+    } finally {
+      setTestLoading(false);
     }
-  }, [token]);
+  };
+
+  const reindexCategory = async (category) => {
+    setReindexLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/admin/knowledge-base/reindex/${category}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (response.ok) {
+        alert(`Reindexing started for ${category}`);
+        loadKnowledgeBaseStats();
+      } else {
+        alert("Reindexing failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Reindexing failed:", error);
+      alert("Reindexing failed. Please try again.");
+    } finally {
+      setReindexLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (user?.role === "admin" && token) {
       loadDashboardData();
       loadContent();
-      loadUsers();
-      loadVectorCollections();
-      loadSettings();
+      if (activeTab === "knowledge-base") {
+        loadKnowledgeBaseStats();
+      }
     }
-  }, [user, token, loadDashboardData, loadContent, loadUsers, loadVectorCollections, loadSettings]);
+  }, [user, token, activeTab, loadDashboardData, loadContent, loadKnowledgeBaseStats]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,35 +242,6 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteContent = async (contentId: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"? This will also remove all associated vectors and embeddings.`)) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/admin/content/${contentId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        alert("Content deleted successfully!");
-        loadContent();
-        loadDashboardData();
-        loadVectorCollections(); // Refresh vector stats
-      } else {
-        const error = await response.text();
-        throw new Error(error || "Delete failed");
-      }
-    } catch (error) {
-      console.error("Delete failed:", error);
-      alert("Delete failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -259,27 +299,6 @@ export default function AdminPage() {
           >
             <Search className="w-4 h-4 mr-2" />
             Knowledge Base
-          </Button>
-          <Button
-            variant={activeTab === "vector-db" ? "primary" : "outline"}
-            onClick={() => setActiveTab("vector-db")}
-          >
-            <Database className="w-4 h-4 mr-2" />
-            Vector DB
-          </Button>
-          <Button
-            variant={activeTab === "users" ? "primary" : "outline"}
-            onClick={() => setActiveTab("users")}
-          >
-            <Users className="w-4 h-4 mr-2" />
-            Users
-          </Button>
-          <Button
-            variant={activeTab === "settings" ? "primary" : "outline"}
-            onClick={() => setActiveTab("settings")}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
           </Button>
         </div>
 
@@ -443,7 +462,6 @@ export default function AdminPage() {
                       <th className="text-left p-4">Category</th>
                       <th className="text-left p-4">Status</th>
                       <th className="text-left p-4">Created</th>
-                      <th className="text-left p-4">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -476,17 +494,6 @@ export default function AdminPage() {
                         <td className="p-4 text-sm text-muted-foreground">
                           {new Date(item.created_at).toLocaleDateString()}
                         </td>
-                        <td className="p-4">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteContent(item.id, item.title)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                            disabled={loading}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -502,365 +509,213 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Knowledge Base Management Tab */}
         {activeTab === "knowledge-base" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Knowledge Base Management</h2>
+              <Button onClick={loadKnowledgeBaseStats} variant="outline" size="sm">
+                Refresh Stats
+              </Button>
             </div>
-            
-            {/* Search Interface */}
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <Input
-                  placeholder="Search knowledge base..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={() => console.log("Search:", searchQuery)}>
-                  <Search className="w-4 h-4 mr-2" />
-                  Search
-                </Button>
-              </div>
-              
-              {/* Content Organization */}
+
+            {/* Statistics Dashboard */}
+            {knowledgeBaseStats && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Politics</h3>
-                  <div className="text-2xl font-bold">{content.filter(c => c.category === "Politics").length}</div>
-                  <p className="text-sm text-muted-foreground">Documents</p>
-                </div>
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Environmentalism</h3>
-                  <div className="text-2xl font-bold">{content.filter(c => c.category === "Environmentalism").length}</div>
-                  <p className="text-sm text-muted-foreground">Documents</p>
-                </div>
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">SKCRF</h3>
-                  <div className="text-2xl font-bold">{content.filter(c => c.category === "SKCRF").length}</div>
-                  <p className="text-sm text-muted-foreground">Documents</p>
-                </div>
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Educational Trust</h3>
-                  <div className="text-2xl font-bold">{content.filter(c => c.category === "Educational Trust").length}</div>
-                  <p className="text-sm text-muted-foreground">Documents</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Vector Database Management Tab */}
-        {activeTab === "vector-db" && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Vector Database Management</h2>
-              <Button onClick={loadVectorCollections} variant="outline" size="sm">
-                Refresh Collections
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {vectorCollections.map((collection) => (
-                <div key={collection.name} className="border rounded-lg p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-semibold">{collection.topic}</h3>
-                      <p className="text-sm text-muted-foreground">{collection.name}</p>
-                    </div>
-                    <div className={`px-2 py-1 rounded text-xs font-medium ${
-                      collection.status === "active" 
-                        ? "bg-green-100 text-green-800" 
-                        : collection.status === "error"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
-                      {collection.status}
-                    </div>
+                <div className="bg-card p-6 rounded-lg border">
+                  <div className="flex items-center space-x-2">
+                    <Database className="h-5 w-5 text-primary" />
+                    <h3 className="font-medium">Total Documents</h3>
                   </div>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Total Vectors:</span>
-                      <span className="font-medium">{collection.vectors_count}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Indexed:</span>
-                      <span className="font-medium">{collection.indexed_vectors_count}</span>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => {
-                      fetch(`${API_BASE}/admin/vector-db/reindex`, {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({ collection_name: collection.name }),
-                      });
-                    }}
-                  >
-                    <Database className="w-4 h-4 mr-2" />
-                    Reindex Collection
-                  </Button>
+                  <p className="text-2xl font-bold mt-2">{knowledgeBaseStats.total_documents}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* User Management Tab */}
-        {activeTab === "users" && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">User Management</h2>
-              <Button onClick={loadUsers} variant="outline" size="sm">
-                Refresh Users
-              </Button>
-            </div>
-            
-            <div className="border rounded-lg">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="text-left p-4">Email</th>
-                      <th className="text-left p-4">Phone</th>
-                      <th className="text-left p-4">Role</th>
-                      <th className="text-left p-4">Conversations</th>
-                      <th className="text-left p-4">Joined</th>
-                      <th className="text-left p-4">Status</th>
-                      <th className="text-left p-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user) => (
-                      <tr key={user.id} className="border-b">
-                        <td className="p-4 font-medium">{user.email}</td>
-                        <td className="p-4 text-muted-foreground">{user.phone_number || "—"}</td>
-                        <td className="p-4">
-                          <div className={`px-2 py-1 rounded text-xs font-medium ${
-                            user.role === "admin" 
-                              ? "bg-purple-100 text-purple-800" 
-                              : "bg-blue-100 text-blue-800"
-                          }`}>
-                            {user.role}
-                          </div>
-                        </td>
-                        <td className="p-4">{user.conversation_count}</td>
-                        <td className="p-4 text-muted-foreground">
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="p-4">
-                          <div className={`px-2 py-1 rounded text-xs font-medium ${
-                            user.is_active 
-                              ? "bg-green-100 text-green-800" 
-                              : "bg-gray-100 text-gray-800"
-                          }`}>
-                            {user.is_active ? "Active" : "Inactive"}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          {user.role !== "admin" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                fetch(`${API_BASE}/admin/users/${user.id}/role`, {
-                                  method: "PUT",
-                                  headers: {
-                                    "Content-Type": "application/json",
-                                    Authorization: `Bearer ${token}`,
-                                  },
-                                  body: JSON.stringify({ role: user.role === "admin" ? "user" : "admin" }),
-                                }).then(() => loadUsers());
-                              }}
-                            >
-                              Make {user.role === "admin" ? "User" : "Admin"}
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              {users.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No users found.
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Settings Management Tab */}
-        {activeTab === "settings" && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">System Settings</h2>
-              <Button onClick={loadSettings} variant="outline" size="sm">
-                Refresh Settings
-              </Button>
-            </div>
-            
-            {systemSettings && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* AI Settings */}
-                <div className="border rounded-lg p-6">
-                  <h3 className="font-semibold mb-4">AI Configuration</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">OpenAI Model</label>
-                      <Input 
-                        value={systemSettings.ai_settings?.openai_model || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Max Tokens</label>
-                      <Input 
-                        type="number"
-                        value={systemSettings.ai_settings?.max_tokens || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Temperature</label>
-                      <Input 
-                        type="number"
-                        step="0.1"
-                        value={systemSettings.ai_settings?.temperature || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
+                
+                <div className="bg-card p-6 rounded-lg border">
+                  <div className="flex items-center space-x-2">
+                    <Search className="h-5 w-5 text-primary" />
+                    <h3 className="font-medium">Total Vectors</h3>
                   </div>
+                  <p className="text-2xl font-bold mt-2">{knowledgeBaseStats.total_vectors}</p>
                 </div>
-
-                {/* Content Settings */}
-                <div className="border rounded-lg p-6">
-                  <h3 className="font-semibold mb-4">Content Settings</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Supported Languages</label>
-                      <Input 
-                        value={systemSettings.content_settings?.supported_languages?.join(", ") || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Max File Size (MB)</label>
-                      <Input 
-                        type="number"
-                        value={systemSettings.content_settings?.max_file_size_mb || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Allowed File Types</label>
-                      <Input 
-                        value={systemSettings.content_settings?.allowed_file_types?.join(", ") || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
+                
+                <div className="bg-card p-6 rounded-lg border">
+                  <div className="flex items-center space-x-2">
+                    <Users className="h-5 w-5 text-primary" />
+                    <h3 className="font-medium">Active Sessions</h3>
                   </div>
+                  <p className="text-2xl font-bold mt-2">{knowledgeBaseStats.general?.active_sessions || 0}</p>
                 </div>
-
-                {/* Auth Settings */}
-                <div className="border rounded-lg p-6">
-                  <h3 className="font-semibold mb-4">Authentication Settings</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">JWT Expiration (Hours)</label>
-                      <Input 
-                        type="number"
-                        value={systemSettings.auth_settings?.jwt_expiration_hours || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        checked={systemSettings.auth_settings?.allow_registration || false}
-                        disabled
-                        className="rounded"
-                      />
-                      <label className="text-sm font-medium">Allow User Registration</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        checked={systemSettings.auth_settings?.require_email_verification || false}
-                        disabled
-                        className="rounded"
-                      />
-                      <label className="text-sm font-medium">Require Email Verification</label>
-                    </div>
+                
+                <div className="bg-card p-6 rounded-lg border">
+                  <div className="flex items-center space-x-2">
+                    <Settings className="h-5 w-5 text-primary" />
+                    <h3 className="font-medium">Languages</h3>
                   </div>
-                </div>
-
-                {/* System Settings */}
-                <div className="border rounded-lg p-6">
-                  <h3 className="font-semibold mb-4">System Configuration</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Environment</label>
-                      <Input 
-                        value={systemSettings.system_settings?.environment || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Log Level</label>
-                      <Input 
-                        value={systemSettings.system_settings?.log_level || ""} 
-                        disabled
-                        className="mt-1"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        checked={systemSettings.system_settings?.debug_mode || false}
-                        disabled
-                        className="rounded"
-                      />
-                      <label className="text-sm font-medium">Debug Mode</label>
-                    </div>
-                  </div>
+                  <p className="text-2xl font-bold mt-2">{knowledgeBaseStats.general?.languages_supported?.length || 2}</p>
                 </div>
               </div>
             )}
-            
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-yellow-800">
-                    Settings are Read-Only in MVP
-                  </h3>
-                  <div className="mt-2 text-sm text-yellow-700">
-                    <p>
-                      System settings are currently read-only for security. Contact your system administrator to modify configuration values.
-                    </p>
+
+            {/* Search & Test Interface */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Search Section */}
+              <div className="bg-card p-6 rounded-lg border">
+                <h3 className="font-medium mb-4">Search Knowledge Base</h3>
+                <div className="space-y-4">
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Enter search query..."
+                    onKeyPress={(e) => e.key === 'Enter' && searchKnowledgeBase()}
+                  />
+                  
+                  <div className="flex space-x-2">
+                    <select
+                      value={searchCategory}
+                      onChange={(e) => setSearchCategory(e.target.value)}
+                      className="px-3 py-2 border border-border rounded-md"
+                    >
+                      <option value="all">All Categories</option>
+                      <option value="Politics">Politics</option>
+                      <option value="Environmentalism">Environmentalism</option>
+                      <option value="SKCRF">SKCRF</option>
+                      <option value="Educational Trust">Educational Trust</option>
+                    </select>
+                    
+                    <Button
+                      onClick={searchKnowledgeBase}
+                      loading={searchLoading}
+                      disabled={!searchQuery.trim()}
+                    >
+                      <Search className="w-4 h-4 mr-2" />
+                      Search
+                    </Button>
                   </div>
+
+                  {searchResults.length > 0 && (
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {searchResults.map((result, index) => (
+                        <div key={index} className="p-3 border rounded-md">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="text-sm font-medium">{result.category}</span>
+                            <span className="text-xs text-muted-foreground">
+                              Score: {(result.score * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <p className="text-sm">{result.content?.substring(0, 200)}...</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* RAG Test Section */}
+              <div className="bg-card p-6 rounded-lg border">
+                <h3 className="font-medium mb-4">Test RAG Query</h3>
+                <div className="space-y-4">
+                  <Input
+                    value={testQuery}
+                    onChange={(e) => setTestQuery(e.target.value)}
+                    placeholder="Enter test question..."
+                  />
+                  
+                  <div className="flex space-x-2">
+                    <select
+                      value={testTopic}
+                      onChange={(e) => setTestTopic(e.target.value)}
+                      className="px-3 py-2 border border-border rounded-md"
+                    >
+                      <option value="general">General</option>
+                      <option value="Politics">Politics</option>
+                      <option value="Environmentalism">Environmentalism</option>
+                      <option value="SKCRF">SKCRF</option>
+                      <option value="Educational Trust">Educational Trust</option>
+                    </select>
+                    
+                    <Button
+                      onClick={testKnowledgeBase}
+                      loading={testLoading}
+                      disabled={!testQuery.trim()}
+                    >
+                      Test Query
+                    </Button>
+                  </div>
+
+                  {testResponse && (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-muted rounded-md">
+                        <h4 className="font-medium text-sm mb-2">Response:</h4>
+                        <p className="text-sm">{testResponse.response || testResponse.answer || "No response received"}</p>
+                      </div>
+                      
+                      {testResponse.sources && testResponse.sources.length > 0 && (
+                        <div className="p-3 border rounded-md">
+                          <h4 className="font-medium text-sm mb-2">Sources:</h4>
+                          <div className="space-y-1">
+                            {testResponse.sources.map((source, index) => (
+                              <div key={index} className="text-xs text-muted-foreground">
+                                {source.title || source.content?.substring(0, 50) || `Source ${index + 1}`} 
+                                {source.score && !isNaN(source.score) && (
+                                  <span> (Score: {(source.score * 100).toFixed(1)}%)</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {testResponse.context && testResponse.context.length > 0 && (
+                        <div className="p-3 border rounded-md">
+                          <h4 className="font-medium text-sm mb-2">Context Used:</h4>
+                          <div className="space-y-1">
+                            {testResponse.context.map((ctx, index) => (
+                              <div key={index} className="text-xs text-muted-foreground">
+                                {ctx.content?.substring(0, 100)}...
+                                {ctx.metadata?.score && !isNaN(ctx.metadata.score) && (
+                                  <span> (Score: {(ctx.metadata.score * 100).toFixed(1)}%)</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Category Management */}
+            {knowledgeBaseStats?.categories && (
+              <div className="bg-card p-6 rounded-lg border">
+                <h3 className="font-medium mb-4">Category Management</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {Object.entries(knowledgeBaseStats.categories).map(([category, stats]) => (
+                    <div key={category} className="p-4 border rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium text-sm">{category}</h4>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => reindexCategory(category)}
+                          disabled={reindexLoading}
+                        >
+                          Reindex
+                        </Button>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs text-muted-foreground">
+                          Documents: {stats.documents}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Vectors: {stats.vectors}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
