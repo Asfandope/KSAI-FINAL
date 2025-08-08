@@ -16,7 +16,7 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
   const { login, setLoading, isLoading } = useAuthStore();
   const [formData, setFormData] = useState({
     email: "",
-    phoneNumber: "",
+    phone_number: "",
     password: "",
     confirmPassword: "",
   });
@@ -42,7 +42,7 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
         }
 
         // Validate at least email or phone is provided
-        if (!formData.email && !formData.phoneNumber) {
+        if (!formData.email && !formData.phone_number) {
           setError("Please provide either email or phone number");
           setLoading(false);
           return;
@@ -51,13 +51,13 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
         // Register user
         const user = await authAPI.register({
           email: formData.email || undefined,
-          phoneNumber: formData.phoneNumber || undefined,
+          phone_number: formData.phone_number || undefined,
           password: formData.password,
         });
 
         // Auto-login after registration
         const tokenResponse = await authAPI.login({
-          username: formData.email || formData.phoneNumber,
+          username: formData.email || formData.phone_number,
           password: formData.password,
         });
 
@@ -65,7 +65,7 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
         router.push("/");
       } else {
         // Login
-        const username = formData.email || formData.phoneNumber;
+        const username = formData.email || formData.phone_number;
         if (!username) {
           setError("Please provide email or phone number");
           setLoading(false);
@@ -115,8 +115,8 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
           label="Phone Number (Optional)"
           type="tel"
           placeholder="+1234567890"
-          value={formData.phoneNumber}
-          onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+          value={formData.phone_number}
+          onChange={(e) => handleInputChange("phone_number", e.target.value)}
         />
 
         <Input

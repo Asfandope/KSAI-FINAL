@@ -53,19 +53,24 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
             detail="Either email or phone number must be provided",
         )
 
-    # Check if user already exists
-    existing_user = (
-        db.query(User)
-        .filter(
-            (User.email == request.email) | (User.phone_number == request.phone_number)
-        )
-        .first()
-    )
-
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="User already exists"
-        )
+    # Check if user already exists - only check fields that are provided
+    existing_user = None
+    
+    if request.email:
+        existing_user = db.query(User).filter(User.email == request.email).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, 
+                detail="A user with this email already exists"
+            )
+    
+    if request.phone_number:
+        existing_user = db.query(User).filter(User.phone_number == request.phone_number).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, 
+                detail="A user with this phone number already exists"
+            )
 
     # Create new user
     hashed_password = get_password_hash(request.password)

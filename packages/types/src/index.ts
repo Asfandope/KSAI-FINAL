@@ -4,7 +4,7 @@ export type UserRole = 'user' | 'admin';
 export interface User {
   id: string;
   email?: string | null;
-  phoneNumber?: string | null;
+  phone_number?: string | null;
   role: UserRole;
   createdAt: string;
   updatedAt: string;
@@ -55,7 +55,7 @@ export interface Conversation {
 // API request/response types
 export interface RegisterRequest {
   email?: string | null;
-  phoneNumber?: string | null;
+  phone_number?: string | null;
   password: string;
 }
 

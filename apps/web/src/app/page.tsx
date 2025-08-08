@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useChatStore } from "@/lib/state/useChatStore";
 import { useAuthStore } from "@/lib/state/useAuthStore";
 import type { Language, Category } from "@ks-ai/types";
+import { Settings } from "lucide-react";
 
 const topics: Record<Language, { en: Category; display: string }[]> = {
   en: [
@@ -116,7 +117,7 @@ export default function Home() {
           <div className="text-sm text-muted-foreground">
             {user ? (
               <div className="flex items-center justify-center space-x-4">
-                <span>Welcome, {user.email || user.phoneNumber}!</span>
+                <span>Welcome, {user.email || user.phone_number}!</span>
                 <button
                   onClick={() => {
                     // Logout functionality
@@ -127,6 +128,15 @@ export default function Home() {
                 >
                   Sign out
                 </button>
+                {(user.email === "admin@ksai.com" || user.role === "admin") && (
+                  <button
+                    onClick={() => router.push("/admin")}
+                    className="inline-flex items-center space-x-2 px-3 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Admin Panel</span>
+                  </button>
+                )}
               </div>
             ) : (
               <div>
